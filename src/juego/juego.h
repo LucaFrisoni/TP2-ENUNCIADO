@@ -7,7 +7,7 @@
 typedef struct juego juego_t;
 
 // Crea un juego de cartas pokemon con dos jugadores
-juego_t *juego_crear(tp1_t *tp1);
+juego_t *juego_crear(tp1_t *tp1, char *nombre1, char *nombre2);
 
 // Cambia de jugador
 void juego_siguiente_jugador(juego_t *juego);
