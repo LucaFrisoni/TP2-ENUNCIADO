@@ -1,4 +1,5 @@
 #include "pa2m.h"
+#include "src/menu.h"
 
 void prueba_simple()
 {
