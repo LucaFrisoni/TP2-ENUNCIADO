@@ -45,6 +45,8 @@ typedef enum {
 #define LARGO_NOMBRE_POKEMON 50
 #define LARGO_NOMBRE_ARCHIVO 100
 #define CANT_MENUS 3
+#define CANT_CARTAS_INICIALES 18
+#define CANT_POKEMONES_CARTAS 9
 
 // #define ACTIONS_EXITO ((void *)0)
 // #define ACTIONS_ERROR_DINAMICO ((void *)1)
