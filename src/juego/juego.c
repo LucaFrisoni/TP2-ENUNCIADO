@@ -11,8 +11,7 @@ typedef struct {
 	lista_t *ultimas_jugadas;
 } juego_t;
 
-juego_t *juego_crear(carta_t *cartas[], size_t cant_cartas,
-		     jugador_t *jugadores[], size_t cant_jugadores)
+juego_t *juego_crear(tp1_t *tp1)
 {
 }
 
