@@ -83,23 +83,24 @@ void imprimir_estilo(menu_estilo_t estilo)
 {
 	switch (estilo) {
 	case MENU_ESTILO_SIMPLE:
-		printf("Estilo cambiado a SIMPLE\n");
+		printf(ANSI_COLOR_GREEN "Estilo cambiado a %sSIMPLE%s\n",
+		       ANSI_COLOR_BOLD, ANSI_COLOR_RESET);
 		break;
 	case MENU_ESTILO_COLORES:
-		printf("Estilo cambiado a COLORES\n");
+		printf(ANSI_COLOR_GREEN "Estilo cambiado a %sCOLORES%s\n",
+		       ANSI_COLOR_BOLD, ANSI_COLOR_RESET);
 		break;
 	case MENU_ESTILO_COLORES2:
-		printf("Estilo cambiado a COLORES 2\n");
+		printf(ANSI_COLOR_GREEN "Estilo cambiado a %sCOLORES 2%s\n",
+		       ANSI_COLOR_BOLD, ANSI_COLOR_RESET);
 		break;
-	case MENU_ESTILO_RECUADRADO:
-		printf("Estilo cambiado a RECUADRADO\n");
 		break;
 	case MENU_ESTILO_MAX:
 	default:
 		break;
 	}
 }
-//-----------------------------------Actions----------------------------------------
+//---------------------------------------------------------------------Actions----------------------------------------
 void *buscar_por_nombre(void *contexto)
 {
 	tp1_t *tp1 = contexto;
@@ -201,6 +202,18 @@ char *pedir_string_usuario(char *mensaje)
 	return nombre;
 }
 
+size_t pedir_carta_usuario(char *mensaje)
+{
+	size_t pos_carta;
+
+	printf("%s%s%s\n", ANSI_COLOR_BLUE, mensaje, ANSI_COLOR_RESET);
+
+	if (scanf(" %zu", &pos_carta) != 1) {
+		return 0;
+	}
+	return pos_carta;
+}
+
 void imprimir_banner()
 {
 	printf("╔═══════════════════════════════════════════════════════════╗\n");
@@ -219,8 +232,8 @@ void imprimir_cartas_en_fila_boca_abajo(lista_t *lista)
 		return;
 
 	// 2) Imprimir por FILAS, no por columnas
-	for (int inicio = 0; inicio < (int)total; inicio += CARTAS_POR_FILA) {
-		int fin = inicio + CARTAS_POR_FILA;
+	for (int inicio = 0; inicio < (int)total; inicio += MAX_POR_FILA) {
+		int fin = inicio + MAX_POR_FILA;
 		if (fin > (int)total)
 			fin = (int)total;
 
@@ -261,102 +274,199 @@ void imprimir_cartas_en_fila_boca_abajo(lista_t *lista)
 	}
 }
 
+void imprimir_jugadas_en_filas(lista_t *lista)
+{
+	size_t total = lista_cantidad(lista);
+	if (total == 0) {
+		printf("(sin jugadas)\n");
+		return;
+	}
+
+	for (size_t inicio = 0; inicio < total; inicio += MAX_POR_FILA) {
+		size_t fin = inicio + MAX_POR_FILA;
+		if (fin > total)
+			fin = total;
+
+		// Línea 1
+		for (size_t i = inicio; i < fin; i++) {
+			jugada_registrada_t *jr =
+				lista_buscar_elemento(lista, i);
+			const char *color = jugada_encontrado(jr) ?
+						    ANSI_COLOR_GREEN :
+						    ANSI_COLOR_RED;
+
+			printf("%s┌──────┐   ┌──────┐%s", color,
+			       ANSI_COLOR_RESET);
+			printf("   ");
+		}
+		printf("\n");
+
+		// Línea 2
+		for (size_t i = inicio; i < fin; i++) {
+			jugada_registrada_t *jr =
+				lista_buscar_elemento(lista, i);
+			const char *color = jugada_encontrado(jr) ?
+						    ANSI_COLOR_GREEN :
+						    ANSI_COLOR_RED;
+			printf("%s│  %-2zu  │ → │  %-2zu  │%s", color,
+			       jugada_carta_1(jr), jugada_carta_2(jr),
+			       ANSI_COLOR_RESET);
+			printf("   ");
+		}
+		printf("\n");
+
+		// Línea 3
+		for (size_t i = inicio; i < fin; i++) {
+			jugada_registrada_t *jr =
+				lista_buscar_elemento(lista, i);
+			const char *color = jugada_encontrado(jr) ?
+						    ANSI_COLOR_GREEN :
+						    ANSI_COLOR_RED;
+
+			printf("%s└──────┘   └──────┘%s", color,
+			       ANSI_COLOR_RESET);
+			printf("   ");
+		}
+
+		printf("\n\n");
+	}
+}
+
 void imprimir_tablero(juego_t *juego)
 {
 	if (!juego)
 		return;
 	jugador_t *jugador1 = juego_jugador_1(juego);
-	jugador_t *jugador2 = juego_jugador_1(juego);
-	// lista_t *ultimas_jugadas = juego_ultimas_jugadas(juego);
+	jugador_t *jugador2 = juego_jugador_2(juego);
+	jugador_t *jugador_actual = juego_jugador_actual(juego);
+	lista_t *ultimas_jugadas = juego_ultimas_jugadas(juego);
 
-	printf("\n=========================================\n");
-	printf("               TABLERO DEL JUEGO\n");
-	printf("=========================================\n\n");
+	printf(ANSI_COLOR_BOLD ANSI_COLOR_BLACK
+	       "========================================================\n" ANSI_COLOR_RESET);
+	printf(ANSI_COLOR_YELLOW ANSI_COLOR_BOLD
+	       "              🃏 TABLERO DE JUEGO 🃏          \n" ANSI_COLOR_RESET);
+	printf(ANSI_COLOR_BLACK ANSI_COLOR_BOLD
+	       "========================================================\n\n" ANSI_COLOR_RESET);
 
-	// Datos del jugador 1
-	printf("Jugador 1: %s\n", jugador_obtener_nombre(jugador1));
-	printf("Puntaje:   %zu\n\n", jugador_obtener_puntaje(jugador1));
+	// Datos de los jugadores
+	printf("Turno de : %s\n\n", jugador_obtener_nombre(jugador_actual));
 
-	// Datos del jugador 2
-	printf("Jugador 2: %s\n", jugador_obtener_nombre(jugador2));
-	printf("Puntaje:   %zu\n\n", jugador_obtener_puntaje(jugador2));
+	printf("Jugador 1: %s", jugador_obtener_nombre(jugador1));
+	printf("		Jugador 2: %s\n",
+	       jugador_obtener_nombre(jugador2));
 
-	printf("-----------------------------------------\n");
-	printf("          ÚLTIMAS %d JUGADAS\n", MAX_ULTIMAS_JUGADAS);
-	printf("-----------------------------------------\n");
+	printf("Puntaje:   %zu", jugador_obtener_puntaje(jugador1));
+	printf("		Puntaje:   %zu\n\n",
+	       jugador_obtener_puntaje(jugador2));
+
+	printf("---------------------------------------------------------\n");
+	printf("                ÚLTIMAS %d JUGADAS\n", MAX_ULTIMAS_JUGADAS);
+	printf("---------------------------------------------------------\n");
 
 	// Mostrar jugadas
-	// size_t total = lista_cantidad(ultimas_jugadas);
-	// if (total == 0) {
-	// 	printf("No hay jugadas registradas aún.\n");
-	// 	return;
-	// }
+	size_t total = lista_cantidad(ultimas_jugadas);
+	if (total == 0) {
+		printf("No hay jugadas registradas aún.\n");
+		return;
+	}
 
-	// size_t inicio = 0;
-	// if (total > MAX_ULTIMAS_JUGADAS)
-	// 	inicio = total - MAX_ULTIMAS_JUGADAS;
-
-	// for (size_t i = inicio; i < total; i++) {
-	// 	char *jugada = cola_obtener(juego->jugadas, i);
-	// 	if (jugada)
-	// 		printf("- %s\n", jugada);
-	// }
+	imprimir_jugadas_en_filas(ultimas_jugadas);
 
 	printf("\n=========================================\n\n");
 }
-// void imprimir_cartas_en_fila_boca_arriba(lista_t *lista, struct pokemon *p)
-// {
-// 	size_t total = lista_cantidad(lista);
-// 	if (total == 0)
-// 		return;
-// 	struct pokemon *p = carta_datos_pk(carta);
 
-// 	// 2) Imprimir por FILAS, no por columnas
-// 	for (int inicio = 0; inicio < (int)total; inicio += CARTAS_POR_FILA) {
-// 		int fin = inicio + CARTAS_POR_FILA;
-// 		if (fin > (int)total)
-// 			fin = (int)total;
+void imprimir_carta_boca_arriba(lista_t *l, size_t idx)
+{
+	struct pokemon *p = lista_buscar_elemento(l, idx);
 
-// 		// imprimir las 7 líneas de esta fila
-// 		for (int linea = 0; linea < LINEAS; linea++) {
-// 			for (int i = inicio; i < fin; i++) {
-// 				switch (linea) {
-// 				case 0:
-// 					printf("┌────────────────┐");
-// 					break;
-// 				case 1:
-// 					printf("│    %-9s   │", p->nombre);
-// 					break;
-// 				case 2:
-// 					printf("│ Tipo:    %-4s  │",
-// 					       convert_tipo_a_string(p->tipo));
-// 					break;
-// 				case 3:
-// 					printf("│ Ataque:    %-3d │",
-// 					       p->ataque);
-// 					break;
-// 				case 4:
-// 					printf("│ Defensa:   %-3d │",
-// 					       p->defensa);
-// 					break;
-// 				case 5:
-// 					printf("│ Velocidad: %-3d │",
-// 					       p->velocidad);
-// 					break;
-// 				case 6:
-// 					printf("└────────────────┘");
-// 					break;
-// 				}
+	printf("┌─────────────────┐\n");
+	printf("│  %-13s  │\n", p->nombre);
+	printf("│ Tipo:    %-4s   │\n", convert_tipo_a_string(p->tipo));
+	printf("│                 │\n");
+	printf("│ Ataque:     %-3d │\n", p->ataque);
+	printf("│ Defensa:    %-3d │\n", p->defensa);
+	printf("│ Velocidad:  %-3d │\n", p->velocidad);
+	printf("└─────────────────┘\n");
+}
 
-// 				printf("   "); // espacio entre cartas
-// 			}
+void imprimir_resultado_final(juego_t *juego)
+{
+	jugador_t *jugador1 = juego_jugador_1(juego);
+	jugador_t *jugador2 = juego_jugador_2(juego);
 
-// 			printf("\n");
-// 		}
+	lista_t *jugadas_jg1 = jugador_registro_jugadas(jugador1);
+	lista_t *jugadas_jg2 = jugador_registro_jugadas(jugador2);
 
-// 		printf("\n"); // separar filas
-// 	}
-// }
+	size_t puntaje_jg1 = jugador_obtener_puntaje(jugador1);
+	size_t puntaje_jg2 = jugador_obtener_puntaje(jugador2);
+
+	printf(ANSI_COLOR_BOLD ANSI_COLOR_BLACK
+	       "========================================================\n" ANSI_COLOR_RESET);
+	printf(ANSI_COLOR_YELLOW ANSI_COLOR_BOLD
+	       "                 ✨ RESULTADO FINAL ✨          \n" ANSI_COLOR_RESET);
+	printf(ANSI_COLOR_BOLD ANSI_COLOR_BLACK
+	       "========================================================\n\n" ANSI_COLOR_RESET);
+
+	printf(ANSI_COLOR_BLUE "Jugador 1:%s %s\n", ANSI_COLOR_RESET,
+	       jugador_obtener_nombre(jugador1));
+	printf(ANSI_COLOR_BLUE "Puntaje:%s %zu\n", ANSI_COLOR_RESET,
+	       puntaje_jg1);
+	printf(ANSI_COLOR_BLUE "Jugadas:%s\n", ANSI_COLOR_RESET);
+	imprimir_jugadas_en_filas(jugadas_jg1);
+
+	printf("\n");
+
+	printf(ANSI_COLOR_BLUE "Jugador 2:%s %s\n", ANSI_COLOR_RESET,
+	       jugador_obtener_nombre(jugador2));
+	printf(ANSI_COLOR_BLUE "Puntaje:%s %zu\n", ANSI_COLOR_RESET,
+	       puntaje_jg2);
+	printf(ANSI_COLOR_BLUE "Jugadas:%s\n", ANSI_COLOR_RESET);
+	imprimir_jugadas_en_filas(jugadas_jg2);
+	printf("\n");
+
+	printf(ANSI_COLOR_BOLD ANSI_COLOR_MAGENTA
+	       "🏆 Ganador 🏆\n" ANSI_COLOR_RESET);
+
+	if (puntaje_jg1 > puntaje_jg2) {
+		printf(ANSI_COLOR_BOLD ANSI_COLOR_DORADO
+		       "EL CAMPEÓN ES: %s \n" ANSI_COLOR_RESET,
+		       jugador_obtener_nombre(jugador1));
+	} else if (puntaje_jg2 > puntaje_jg1) {
+		printf(ANSI_COLOR_BOLD ANSI_COLOR_DORADO
+		       " EL CAMPEÓN ES: %s \n" ANSI_COLOR_RESET,
+		       jugador_obtener_nombre(jugador2));
+	} else {
+		printf(ANSI_COLOR_BOLD ANSI_COLOR_DORADO
+		       "🤝 ¡EMPATE! Ambos jugadores dieron pelea.\n" ANSI_COLOR_RESET);
+	}
+}
+
+void loop_juego(juego_t *juego, lista_t *juego_lista)
+{
+	while (!juego_terminado(juego)) {
+		imprimir_cartas_en_fila_boca_abajo(juego_lista);
+
+		imprimir_tablero(juego);
+
+		size_t idx_1 = pedir_carta_usuario("Elige la primera carta:");
+		imprimir_carta_boca_arriba(juego_lista, idx_1);
+		size_t idx_2 = pedir_carta_usuario("Elige la segunda carta:");
+		imprimir_carta_boca_arriba(juego_lista, idx_2);
+
+		bool encontrada = juego_carta_encontrada(juego, idx_1, idx_2);
+		juego_registrar_jugada(juego, idx_1, idx_2, encontrada);
+
+		if (encontrada) {
+			printf("%sCarta encontrada!%s\n", ANSI_COLOR_GREEN,
+			       ANSI_COLOR_RESET);
+			jugador_sumar_puntaje(juego_jugador_actual(juego));
+		} else {
+			printf("%sLas cartas no coinciden,turno del siguiente jugador%s\n",
+			       ANSI_COLOR_RED, ANSI_COLOR_RESET);
+			juego_siguiente_jugador(juego);
+		}
+	}
+}
 
 void *jugar(void *contexto)
 {
@@ -380,8 +490,9 @@ void *jugar(void *contexto)
 		return NULL;
 	}
 
-	imprimir_cartas_en_fila_boca_abajo(juego_lista);
-	imprimir_tablero(juego);
+	loop_juego(juego, juego_lista);
+
+	imprimir_resultado_final(juego);
 	return NULL;
 }
 //-----------------------------------------------------------------------------------

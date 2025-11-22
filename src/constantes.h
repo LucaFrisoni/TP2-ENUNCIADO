@@ -49,8 +49,9 @@ typedef enum {
 #define CANT_CARTAS_INICIALES 18
 #define CANT_POKEMONES_CARTAS 9
 #define MAX_ULTIMAS_JUGADAS 5
-#define CARTAS_POR_FILA 5
+#define MAX_POR_FILA 5
 #define LINEAS 7
+#define LINEAS_HISTORIAL 3
 // #define ACTIONS_EXITO ((void *)0)
 // #define ACTIONS_ERROR_DINAMICO ((void *)1)
 // #define ACTIONS_ERROR_SCANF ((void *)2)

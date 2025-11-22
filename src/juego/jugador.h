@@ -1,7 +1,6 @@
 #ifndef JUGADOR_H
 #define JUGADOR_H
 
-#include "carta.h"
 #include "jugada.h"
 #include "../estructuras_de_datos/lista.h"
 

@@ -75,7 +75,6 @@ size_t jugador_obtener_puntaje(jugador_t *jugador)
 	return jugador->puntaje;
 }
 //------------------------------------------------------------------------------------------
-// Ver de hacer sistema de mas puntaje si son seguidas
 void jugador_sumar_puntaje(jugador_t *jugador)
 {
 	if (!jugador)

@@ -220,9 +220,6 @@ void mostrar_opcion_con_estilo(menu_t *menu, opcion_t *op)
 				      "%s" ANSI_COLOR_RESET "\n",
 		       op->tecla, op->descripcion);
 		break;
-	case MENU_ESTILO_RECUADRADO:
-		printf("[ %c ]  %s\n", op->tecla, op->descripcion);
-		break;
 	case MENU_ESTILO_MAX:
 	default:
 		break;
@@ -235,7 +232,7 @@ void mostrar_titulo_con_estilo(menu_t *menu)
 		printf("%s\n", menu->titulo);
 		break;
 	case MENU_ESTILO_COLORES:
-		printf(ANSI_COLOR_GREEN ANSI_COLOR_BOLD "%s" ANSI_COLOR_RESET
+		printf(ANSI_COLOR_WHITE ANSI_COLOR_BOLD "%s" ANSI_COLOR_RESET
 							"\n",
 		       menu->titulo);
 		break;
@@ -244,10 +241,6 @@ void mostrar_titulo_con_estilo(menu_t *menu)
 							  "\n",
 		       menu->titulo);
 		break;
-	case MENU_ESTILO_RECUADRADO:
-		printf("########## %s ##########\n", menu->titulo);
-		break;
-
 	case MENU_ESTILO_MAX:
 	default:
 		break;
