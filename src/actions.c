@@ -3,7 +3,6 @@
 #include <string.h>
 #include "actions.h"
 #include "estructuras_de_datos/tp1.h"
-#include "estructuras_de_datos/cola.h"
 #include "juego/juego.h"
 #include "constantes.h"
 #include "ansi.h"
@@ -43,12 +42,29 @@ bool mostrar_pokemon(struct pokemon *p, void *extra)
 {
 	if (!p)
 		return false;
-	printf("Id: %d\n", p->id);
-	printf("Nombre: %s\n", p->nombre);
-	printf("Tipo: %d\n", p->tipo);
-	printf("Ataque: %d\n", p->ataque);
-	printf("Defensa: %d\n", p->defensa);
-	printf("Velocidad: %d\n\n", p->velocidad);
+	printf(ANSI_COLOR_WHITE ANSI_COLOR_BOLD
+	       "=== POKÉMON ===" ANSI_COLOR_RESET "\n\n");
+
+	printf(ANSI_COLOR_BLACK ANSI_COLOR_BOLD "Id:        " ANSI_COLOR_RESET);
+	printf(ANSI_COLOR_DORADO "%d\n" ANSI_COLOR_RESET, p->id);
+
+	printf(ANSI_COLOR_BLACK ANSI_COLOR_BOLD "Nombre:    " ANSI_COLOR_RESET);
+	printf(ANSI_COLOR_DORADO "%s\n" ANSI_COLOR_RESET, p->nombre);
+
+	printf(ANSI_COLOR_BLACK ANSI_COLOR_BOLD "Tipo:      " ANSI_COLOR_RESET);
+	printf(ANSI_COLOR_DORADO "%s\n" ANSI_COLOR_RESET,
+	       convert_tipo_a_string(p->tipo));
+
+	printf(ANSI_COLOR_BLACK ANSI_COLOR_BOLD "Ataque:    " ANSI_COLOR_RESET);
+	printf(ANSI_COLOR_DORADO "%d\n" ANSI_COLOR_RESET, p->ataque);
+
+	printf(ANSI_COLOR_BLACK ANSI_COLOR_BOLD "Defensa:   " ANSI_COLOR_RESET);
+	printf(ANSI_COLOR_DORADO "%d\n" ANSI_COLOR_RESET, p->defensa);
+
+	printf(ANSI_COLOR_BLACK ANSI_COLOR_BOLD "Velocidad: " ANSI_COLOR_RESET);
+	printf(ANSI_COLOR_DORADO "%d\n\n" ANSI_COLOR_RESET, p->velocidad);
+
+	printf(ANSI_COLOR_BLACK "------------------------\n" ANSI_COLOR_RESET);
 
 	(void)extra; // para evitar warnings de parámetro no usado
 	return true;
@@ -109,7 +125,8 @@ void *buscar_por_nombre(void *contexto)
 	if (!nombre_pk)
 		return NULL;
 
-	printf("Ingrese el nombre de pokemon a buscar:\n");
+	printf(ANSI_COLOR_BLUE
+	       "Ingrese el nombre de pokemon a buscar:\n" ANSI_COLOR_RESET);
 
 	if (scanf(" %s", nombre_pk) != 1) {
 		free(nombre_pk);
@@ -121,7 +138,8 @@ void *buscar_por_nombre(void *contexto)
 	free(nombre_pk);
 
 	if (!mostrar_pokemon(pk, NULL))
-		printf("Pokemon no encontrado\n");
+		printf(ANSI_COLOR_RED
+		       "Pokemon no encontrado\n" ANSI_COLOR_RESET);
 
 	return NULL;
 }
@@ -130,14 +148,16 @@ void *buscar_por_id(void *contexto)
 	tp1_t *tp1 = contexto;
 	int id;
 
-	printf("Ingrese el id de pokemon a buscar:\n");
+	printf(ANSI_COLOR_BLUE
+	       "Ingrese el id de pokemon a buscar:\n" ANSI_COLOR_RESET);
 
 	if (scanf(" %d", &id) != 1)
 		return NULL;
 
 	struct pokemon *pk = tp1_buscar_id(tp1, id);
 	if (!mostrar_pokemon(pk, NULL))
-		printf("Pokemon no encontrado\n");
+		printf(ANSI_COLOR_RED
+		       "Pokemon no encontrado\n" ANSI_COLOR_RESET);
 
 	return NULL;
 }
@@ -173,7 +193,8 @@ void *cargar_archivo(void *contexto)
 	if (!nombre_archivo)
 		return NULL;
 
-	printf("Ingrese la ruta del archivo para cargarlo:\n");
+	printf(ANSI_COLOR_BLUE
+	       "Ingrese la ruta del archivo para cargarlo:\n" ANSI_COLOR_RESET);
 
 	if (scanf(" %s", nombre_archivo) != 1) {
 		free(nombre_archivo);
@@ -519,11 +540,13 @@ void *cambiar_estilo(void *contexto)
 }
 void *menu_anterior(void *contexto)
 {
-	printf("Volviendo al menu anterior...\n");
+	printf(ANSI_COLOR_BOLD ANSI_COLOR_BLACK
+	       "Volviendo al menu anterior...\n" ANSI_COLOR_RESET);
 	return NULL;
 }
 void *salir(void *contexto)
 {
-	printf("Saliendo del juego...\n");
+	printf(ANSI_COLOR_BOLD ANSI_COLOR_BLACK
+	       "Saliendo del juego...\n" ANSI_COLOR_RESET);
 	return NULL;
 }

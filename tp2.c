@@ -160,12 +160,6 @@ void case_jugar(menu_t *menu, char tecla, tp1_t *tp1)
 	if (!validando_tp1(tp1, true))
 		return;
 
-	// contexto_jugar_t ctx;
-
-	// ctx.tp1 = tp1;
-	// ctx.nombre1 = nombre1;
-	// ctx.nombre2 = nombre2;
-
 	menu_ejecutar(menu, tecla, tp1);
 	return;
 }
