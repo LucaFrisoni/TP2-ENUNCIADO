@@ -3,6 +3,8 @@
 
 #include "estructuras_de_datos/menu.h"
 
+typedef struct contexto_jugar contexto_jugar_t;
+
 void *cargar_archivo(void *contexto);
 void *buscar_por_id(void *contexto);
 void *buscar_por_nombre(void *contexto);

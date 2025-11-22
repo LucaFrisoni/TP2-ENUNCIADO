@@ -56,16 +56,6 @@ opcion_t *creando_opcion(menu_t *submenu, char tecla, const char *descripcion,
 	return opcion;
 }
 
-lista_t *creando_lista_opciones()
-{
-	return lista_crear();
-}
-
-hash_t *creando_hash_opciones()
-{
-	return hash_crear(DEFAULT_CAPACIDAD);
-}
-
 menu_t *menu_crear(const char *titulo)
 {
 	if (!titulo)
@@ -81,14 +71,14 @@ menu_t *menu_crear(const char *titulo)
 		return NULL;
 	}
 
-	menu->lista_opciones = creando_lista_opciones();
+	menu->lista_opciones = lista_crear();
 	if (!menu->lista_opciones) {
 		free(menu->titulo);
 		free(menu);
 		return NULL;
 	}
 
-	menu->hash_opciones = creando_hash_opciones();
+	menu->hash_opciones = hash_crear(DEFAULT_CAPACIDAD);
 	if (!menu->hash_opciones) {
 		free(menu->titulo);
 		free(menu);

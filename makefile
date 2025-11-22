@@ -2,9 +2,9 @@ VALGRIND_FLAGS=--leak-check=full --track-origins=yes --show-reachable=yes --erro
 CFLAGS =-std=c99 -Wall -Wconversion -Wtype-limits -pedantic -Werror -O2 -g
 
 compilar:
-	gcc $(CFLAGS) tp2.c src/*.c src/estructuras_de_datos/*.c -o programa
+	gcc $(CFLAGS) tp2.c src/*.c src/estructuras_de_datos/*.c src/juego/*.c -o programa
 compilar_t:
-	gcc $(CFLAGS) pruebas_alumno.c src/*.c src/estructuras_de_datos/*.c -o tests
+	gcc $(CFLAGS) pruebas_alumno.c src/*.c src/estructuras_de_datos/*.c src/juego/*.c -o tests
 valgrind:
 	valgrind $(VALGRIND_FLAGS) ./programa assets/pokemones.csv buscar nombre Pikachu
 valgrind_t:

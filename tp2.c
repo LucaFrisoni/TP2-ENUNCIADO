@@ -7,6 +7,13 @@
 #include "src/estructuras_de_datos/tp1.h"
 #include "src/constantes.h"
 #include "src/actions.h"
+
+struct contexto_jugar {
+	tp1_t *tp1;
+	char *nombre1;
+	char *nombre2;
+};
+
 //-------------------------------------------Funciones aux-------------------------------------------------------------
 char leer_tecla()
 {
@@ -37,6 +44,7 @@ tp1_t *cargar_archivo_inicial(menu_t *menu, const char *ruta_archivo)
 
 	return tp1;
 }
+
 //-------------------------------------------Validaciones-------------------------------------------------------------
 bool validando_params(int argc, char *argv[])
 {
@@ -45,6 +53,24 @@ bool validando_params(int argc, char *argv[])
 		       ANSI_COLOR_RED, ANSI_COLOR_RESET);
 		return false;
 	}
+	return true;
+}
+bool validando_tp1(tp1_t *tp1, bool jugar)
+{
+	if (!tp1) {
+		printf("%sDebe cargar un archivo pokemones primero%s\n",
+		       ANSI_COLOR_DORADO, ANSI_COLOR_RESET);
+		return false;
+	}
+	if (jugar) {
+		size_t cantidad = tp1_cantidad(tp1);
+		if (cantidad < 9) {
+			printf("%sDebe de haber un minimo de 9 pokemones%s\n",
+			       ANSI_COLOR_DORADO, ANSI_COLOR_RESET);
+			return false;
+		}
+	}
+
 	return true;
 }
 //-------------------------------------------Creando Menu------------------------------------------------------------
@@ -101,6 +127,8 @@ bool creando_menu(menu_t **menu_principal, menu_t **sub_menu_buscar,
 
 	return ok_buscar && ok_mostrar && ok_princ;
 }
+//-------------------------------------------Juego-----------------------------------------------------------
+
 //-------------------------------------------Cases Switch------------------------------------------------------------
 tp1_t *case_cargar(menu_t *menu, char tecla)
 {
@@ -127,14 +155,25 @@ void case_estilo(menu_t *menu, menu_t *sub_menu_buscar,
 	menus[2] = sub_menu_mostrar;
 	menu_ejecutar(menu, tecla, menus);
 }
+void case_jugar(menu_t *menu, char tecla, tp1_t *tp1)
+{
+	if (!validando_tp1(tp1, true))
+		return;
+
+	// contexto_jugar_t ctx;
+
+	// ctx.tp1 = tp1;
+	// ctx.nombre1 = nombre1;
+	// ctx.nombre2 = nombre2;
+
+	menu_ejecutar(menu, tecla, tp1);
+	return;
+}
 //-------------------------------------------Switchs-----------------------------------------------------------------
 void procesar_submenu(menu_t *submenu, tp1_t *tp1, const char *nombre)
 {
-	if (!tp1) {
-		printf("%sDebe cargar un archivo primero%s\n",
-		       ANSI_COLOR_DORADO, ANSI_COLOR_RESET);
+	if (!validando_tp1(tp1, false))
 		return;
-	}
 
 	if (menu_mostrar(submenu) != 0) {
 		printf("%sError mostrando menú %s%s\n", ANSI_COLOR_RED, nombre,
@@ -157,29 +196,31 @@ void procesar_submenu(menu_t *submenu, tp1_t *tp1, const char *nombre)
 }
 
 void switch_principal(char tecla, menu_t *menu, menu_t *sub_menu_buscar,
-		      menu_t *sub_menu_mostrar, tp1_t **tp1, bool *continuar)
+		      menu_t *sub_menu_mostrar, tp1_t *tp1, bool *continuar)
 {
 	switch (tecla) {
 	case 'C': // Cargar archivo
-		*tp1 = case_cargar(menu, tecla);
+		tp1 = case_cargar(menu, tecla);
 		break;
 
 	case 'B': // Buscar
-		procesar_submenu(sub_menu_buscar, *tp1, "BUSCAR");
+		procesar_submenu(sub_menu_buscar, tp1, "BUSCAR");
 		break;
 
 	case 'M': // Mostrar
-		procesar_submenu(sub_menu_mostrar, *tp1, "MOSTRAR");
+		procesar_submenu(sub_menu_mostrar, tp1, "MOSTRAR");
 		break;
 
 	case 'J': // Jugar
+		case_jugar(menu, tecla, tp1);
+		break;
 	case 'S': // Semilla
 	case 'E': // Estilo
 		case_estilo(menu, sub_menu_buscar, sub_menu_mostrar, tecla);
 		break;
 
 	case 'Q': // Quit
-		case_salir(menu, tecla, *tp1, continuar);
+		case_salir(menu, tecla, tp1, continuar);
 		break;
 
 	default:
@@ -206,7 +247,7 @@ void ejecutar_menu(menu_t *menu, menu_t *sub_menu_buscar,
 		char tecla = leer_tecla();
 
 		switch_principal(tecla, menu, sub_menu_buscar, sub_menu_mostrar,
-				 &tp1, &continuar);
+				 tp1, &continuar);
 	}
 }
 
