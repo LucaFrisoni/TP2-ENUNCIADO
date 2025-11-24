@@ -82,7 +82,7 @@ void jugador_sumar_puntaje(jugador_t *jugador)
 	jugador->puntaje++;
 }
 //------------------------------------------------------------------------------------------
-lista_t *jugador_registro_jugadas(jugador_t *jugador)
+void *jugador_registro_jugadas(jugador_t *jugador)
 {
 	if (!jugador)
 		return NULL;
@@ -97,8 +97,14 @@ void jugador_destruir(jugador_t *jugador)
 
 	if (jugador->nombre)
 		free(jugador->nombre);
-	if (jugador->registro_jugadas)
-		lista_destruir(jugador->registro_jugadas);
+	if (jugador->registro_jugadas) {
+		if (lista_cantidad(jugador->registro_jugadas)) {
+			lista_destruir_todo(jugador->registro_jugadas,
+					    jugada_destruir);
+		} else {
+			lista_destruir(jugador->registro_jugadas);
+		}
+	}
 
 	free(jugador);
 }

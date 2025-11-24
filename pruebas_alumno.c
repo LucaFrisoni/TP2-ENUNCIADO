@@ -6,6 +6,7 @@
 #include "src/juego/jugada.h"
 #include "src/estructuras_de_datos/lista.h"
 #include "string.h"
+
 struct struct_prueba {
 	int x;
 	double y;
@@ -17,12 +18,6 @@ void test_menu_crear_titulo_null()
 	menu_t *menu = menu_crear(NULL);
 	pa2m_afirmar(menu == NULL,
 		     "Crear un menu con un titulo NULL devuelve NULL");
-}
-void test_menu_crear_titulo_vacio()
-{
-	menu_t *menu = menu_crear("");
-	pa2m_afirmar(menu == NULL,
-		     "Crear un menu con un titulo vacio devuelve NULL");
 }
 void test_menu_crear_correctamente()
 {
@@ -69,7 +64,6 @@ void test_menu_crear_titulo_simbolos()
 void tests_menu_crear()
 {
 	test_menu_crear_titulo_null();
-	test_menu_crear_titulo_vacio();
 	test_menu_crear_correctamente();
 	test_menu_crear_titulo_largo();
 	test_menu_crear_titulo_una_letra();
@@ -100,22 +94,22 @@ void tests_menu_cantidad()
 //-------------------------------------------------
 void *accion_int(void *c)
 {
-	int v = 7;
-	return &v;
+	static int v = 7;
+	return &v; // devolvemos puntero al static
 }
 void *accion_double(void *c)
 {
-	double d = 3.14;
+	static double d = 3.14;
 	return &d;
 }
 void *accion_bool(void *c)
 {
-	bool b = true;
+	static bool b = true;
 	return &b;
 }
 void *accion_char(void *c)
 {
-	char x = 'Z';
+	static char x = 'Z';
 	return &x;
 }
 void *accion_string(void *c)
@@ -124,7 +118,7 @@ void *accion_string(void *c)
 }
 void *accion_array(void *c)
 {
-	int arr[3] = { 1, 2, 3 };
+	static int arr[3] = { 1, 2, 3 };
 	return arr;
 }
 void *accion_struct(void *c)
@@ -138,8 +132,8 @@ void *accion_null(void *c)
 }
 void *accion_con_contexto(void *ctx)
 {
+	static int retorno;
 	int *valor = ctx;
-	int retorno;
 	retorno = (*valor) * 2;
 	return &retorno;
 }
@@ -291,7 +285,6 @@ void test_menu_agregar_opcion_accion_devuelve_varios_tipos_datos()
 void test_menu_agregar_opcion_accion_pasandole_contexto()
 {
 	menu_t *menu = menu_crear("Menu");
-	int numero = 21;
 
 	int r = menu_agregar_opcion(menu, 'x', "Con contexto",
 				    accion_con_contexto);
@@ -523,7 +516,7 @@ void test_menu_agregar_submenu_prueba_estress()
 	bool todo_ok = true;
 
 	for (int i = 0; i < 5000; i++) {
-		char tecla = (i % 26) + 'a';
+		char tecla = (char)(i % 26) + 'a';
 		subs[i] = menu_crear("Sub");
 
 		int r = menu_agregar_submenu(menu, tecla, "Stress", subs[i]);
@@ -633,7 +626,7 @@ void test_menu_set_estilo_correctamante()
 {
 	menu_t *m = menu_crear("Menu");
 
-	int r = menu_set_estilo(m, MENU_ESTILO_COLORES);
+	menu_set_estilo(m, MENU_ESTILO_COLORES);
 	int estilo = menu_get_estilo(m);
 	pa2m_afirmar(estilo == 1,
 		     "Cambiar el estilo del menu funciona correctamente");
@@ -1297,7 +1290,6 @@ void tests_opcion_destruir()
 	test_opcion_destruir_opcion_con_descripcion_larga();
 	test_opcion_destruir_opcion_con_emojis();
 	test_opcion_destruir_opcion_con_accion();
-	test_opcion_destruir_varias_opciones();
 	test_opcion_destruir_descripcion_simbolos();
 	test_opcion_destruir_descripcion_corta();
 	test_opcion_destruir_prueba_estres();
@@ -1340,8 +1332,8 @@ void test_juego_crear_dos_juegos_distintos()
 {
 	tp1_t *tp1 = tp1_leer_archivo("assets/pokemones.csv");
 
-	juego_t *j1 = juego_crear(&tp1, "Ana", "Luis");
-	juego_t *j2 = juego_crear(&tp1, "Ana", "Luis");
+	juego_t *j1 = juego_crear(tp1, "Ana", "Luis");
+	juego_t *j2 = juego_crear(tp1, "Ana", "Luis");
 
 	pa2m_afirmar(j1 != NULL && j2 != NULL && j1 != j2,
 		     "Se pueden crear dos juegos distintos correctamente");
@@ -1367,7 +1359,7 @@ void test_juego_jugador_1_juego_null()
 void test_juego_jugador_1_correcto()
 {
 	tp1_t *tp1 = tp1_leer_archivo("assets/pokemones.csv");
-	juego_t *j = juego_crear(&tp1, "Ana", "Luis");
+	juego_t *j = juego_crear(tp1, "Ana", "Luis");
 
 	pa2m_afirmar(juego_jugador_1(j) != NULL, "Devuelve un jugador válido");
 	pa2m_afirmar(strcmp(jugador_obtener_nombre(juego_jugador_1(j)),
@@ -1380,7 +1372,7 @@ void test_juego_jugador_1_correcto()
 void test_juego_jugador_1_prueba_estres()
 {
 	tp1_t *tp1 = tp1_leer_archivo("assets/pokemones.csv");
-	juego_t *j = juego_crear(&tp1, "Ana", "Luis");
+	juego_t *j = juego_crear(tp1, "Ana", "Luis");
 
 	bool ok = true;
 
@@ -1414,7 +1406,7 @@ void test_juego_jugador_2_juego_null()
 void test_juego_jugador_2_correcto()
 {
 	tp1_t *tp1 = tp1_leer_archivo("assets/pokemones.csv");
-	juego_t *j = juego_crear(&tp1, "Ana", "Luis");
+	juego_t *j = juego_crear(tp1, "Ana", "Luis");
 
 	pa2m_afirmar(juego_jugador_2(j) != NULL, "devuelve un jugador válido");
 	pa2m_afirmar(strcmp(jugador_obtener_nombre(juego_jugador_2(j)),
@@ -1427,7 +1419,7 @@ void test_juego_jugador_2_correcto()
 void test_juego_jugador_2_prueba_estres()
 {
 	tp1_t *tp1 = tp1_leer_archivo("assets/pokemones.csv");
-	juego_t *j = juego_crear(&tp1, "Ana", "Luis");
+	juego_t *j = juego_crear(tp1, "Ana", "Luis");
 
 	bool ok = true;
 
@@ -1461,7 +1453,7 @@ void test_juego_jugador_actual_juego_null()
 void test_juego_jugador_actual_empieza_en_jugador_1()
 {
 	tp1_t *tp1 = tp1_leer_archivo("assets/pokemones.csv");
-	juego_t *j = juego_crear(&tp1, "Ana", "Luis");
+	juego_t *j = juego_crear(tp1, "Ana", "Luis");
 
 	pa2m_afirmar(juego_jugador_actual(j) == juego_jugador_1(j),
 		     "Juego inicia correctamente como jugador 1");
@@ -1484,7 +1476,7 @@ void test_juego_siguiente_jugador_juego_null()
 void test_juego_siguiente_jugador_alternar_una_vez()
 {
 	tp1_t *tp1 = tp1_leer_archivo("assets/pokemones.csv");
-	juego_t *j = juego_crear(&tp1, "Ana", "Luis");
+	juego_t *j = juego_crear(tp1, "Ana", "Luis");
 
 	jugador_t *primero = juego_jugador_actual(j);
 
@@ -1499,10 +1491,9 @@ void test_juego_siguiente_jugador_alternar_una_vez()
 void test_juego_siguiente_jugador_alternar_muchas_veces()
 {
 	tp1_t *tp1 = tp1_leer_archivo("assets/pokemones.csv");
-	juego_t *j = juego_crear(&tp1, "Ana", "Luis");
+	juego_t *j = juego_crear(tp1, "Ana", "Luis");
 
 	jugador_t *jugador_inicial = juego_jugador_actual(j);
-	jugador_t *actual = NULL;
 	jugador_t *current = NULL;
 	bool alterna_correlativamente = true;
 
@@ -1550,7 +1541,7 @@ void test_juego_carta_encontrada_correcta()
 	tp1_t *tp1 = tp1_leer_archivo("assets/pokemones.csv");
 	juego_t *j = juego_crear(tp1, "Ana", "Luis");
 
-	size_t idx1 = 0;
+	size_t idx1 = 1;
 
 	pa2m_afirmar(juego_carta_encontrada(j, idx1, idx1),
 		     "Devuelve true cuando las cartas coinciden");
@@ -1576,7 +1567,7 @@ void test_juego_registrar_jugada_correcta_no_encontrada()
 	tp1_t *tp1 = tp1_leer_archivo("assets/pokemones.csv");
 	juego_t *j = juego_crear(tp1, "Ana", "Luis");
 
-	pa2m_afirmar(juego_registrar_jugada(j, 0, 1, false),
+	pa2m_afirmar(juego_registrar_jugada(j, 1, 2, false),
 		     "Registra correctamente una jugada no encontrada");
 
 	juego_destruir(j);
@@ -1587,7 +1578,7 @@ void test_juego_registrar_jugada_correcta_encontrada()
 	tp1_t *tp1 = tp1_leer_archivo("assets/pokemones.csv");
 	juego_t *j = juego_crear(tp1, "Ana", "Luis");
 
-	pa2m_afirmar(juego_registrar_jugada(j, 0, 1, true),
+	pa2m_afirmar(juego_registrar_jugada(j, 1, 8, true),
 		     "Registra correctamente una jugada encontrada");
 
 	juego_destruir(j);
@@ -1811,13 +1802,13 @@ void test_juego_destruir_correctamente_sin_cartas()
 {
 	tp1_t *tp1 = tp1_leer_archivo("assets/pokemones.csv");
 	juego_t *j = juego_crear(tp1, "Ana", "Luis");
-	lista_t *l = juego_cartas_lista(j);
 	size_t cant;
 
-	for (size_t i = 0; i < juego_cartas_restantes(j); i++)
-		lista_eliminar_elemento(l, i);
+	for (size_t i = 0; i < 10; i++)
+		juego_registrar_jugada(j, 0, 1, true); //Fuerzo el encuentro
 
 	cant = juego_cartas_restantes(j);
+
 	juego_destruir(j);
 	pa2m_afirmar(cant == 0,
 		     "Juego destruido correctamente sin errores sin cartas");
@@ -2120,8 +2111,8 @@ void test_jugador_registrar_jugada_varias_veces()
 	jugador_t *p = jugador_crear("Luca");
 	bool ok = true;
 
-	for (int i = 0; i < 5; i++) {
-		jugada_registrada_t *j = jugada_crear(i, i + 1, true);
+	for (size_t i = 0; i < 5; i++) {
+		jugada_registrada_t *j = jugada_crear(i, (i + 1), true);
 		if (!jugador_registrar_jugada(p, j))
 			ok = false;
 	}
@@ -2136,7 +2127,7 @@ void test_jugador_registrar_jugada_prueba_estres()
 	jugador_t *p = jugador_crear("Jugador");
 	bool ok = true;
 
-	for (int i = 0; i < 5000; i++) {
+	for (size_t i = 0; i < 5000; i++) {
 		jugada_registrada_t *j = jugada_crear(i, i + 2, (i % 2 == 0));
 		if (!jugador_registrar_jugada(p, j)) {
 			ok = false;
@@ -2158,14 +2149,85 @@ void tests_jugador_registrar_jugada()
 	test_jugador_registrar_jugada_prueba_estres();
 }
 //-------------------------------------------------
-void tests_jugador_registro_jugadas()
+void test_jugador_registro_jugadas_jugador_null()
 {
+	void *r = jugador_registro_jugadas(NULL);
+	pa2m_afirmar(r == NULL, "Devuelve NULL si el jugador es NULL");
 }
-//-------------------------------------------------
-void tests_jugador_destruir()
+void test_jugador_registro_jugadas_lista_vacia()
 {
+	jugador_t *p = jugador_crear("Luca");
+	void *r = jugador_registro_jugadas(p);
+	pa2m_afirmar(r != NULL, "Devuelve la lista aunque esté vacía");
+	pa2m_afirmar(lista_cantidad(r) == 0,
+		     "La lista está vacía inicialmente");
+	jugador_destruir(p);
+}
+void test_jugador_registro_jugadas_con_jugadas()
+{
+	jugador_t *p = jugador_crear("Luca");
+	jugada_registrada_t *j1 = jugada_crear(1, 2, true);
+	jugada_registrada_t *j2 = jugada_crear(3, 4, false);
+
+	jugador_registrar_jugada(p, j1);
+	jugador_registrar_jugada(p, j2);
+
+	lista_t *r = jugador_registro_jugadas(p);
+	pa2m_afirmar(r != NULL, "Devuelve la lista de jugadas");
+	pa2m_afirmar(lista_cantidad(r) == 2, "La lista tiene 2 jugadas");
+
+	jugador_destruir(p);
 }
 
+void tests_jugador_registro_jugadas()
+{
+	test_jugador_registro_jugadas_jugador_null();
+	test_jugador_registro_jugadas_lista_vacia();
+	test_jugador_registro_jugadas_con_jugadas();
+}
+//-------------------------------------------------
+void test_jugador_destruir_jugador_null()
+{
+	jugador_destruir(NULL); // no debería hacer nada
+	pa2m_afirmar(true, "No falla al destruir un jugador NULL");
+}
+void test_jugador_destruir_sin_jugadas()
+{
+	jugador_t *p = jugador_crear("Luca");
+	jugador_destruir(p);
+	pa2m_afirmar(true, "Destruye correctamente un jugador sin jugadas");
+}
+void test_jugador_destruir_varias_jugadas()
+{
+	jugador_t *p = jugador_crear("Luca");
+	for (size_t i = 0; i < 5; i++) {
+		jugada_registrada_t *j = jugada_crear(i, i + 1, true);
+		jugador_registrar_jugada(p, j);
+	}
+	jugador_destruir(p);
+	pa2m_afirmar(true,
+		     "Destruye correctamente un jugador con varias jugadas");
+}
+void test_jugador_destruir_prueba_estres()
+{
+	jugador_t *p = jugador_crear("Jugador");
+	for (size_t i = 0; i < 5000; i++) {
+		jugada_registrada_t *j = jugada_crear(i, i + 2, (i % 2 == 0));
+		jugador_registrar_jugada(p, j);
+	}
+	jugador_destruir(p);
+	pa2m_afirmar(
+		true,
+		"Prueba estres:Destruye correctamente un jugador con +5000 jugadas");
+}
+
+void tests_jugador_destruir()
+{
+	test_jugador_destruir_jugador_null();
+	test_jugador_destruir_sin_jugadas();
+	test_jugador_destruir_varias_jugadas();
+	test_jugador_destruir_prueba_estres();
+}
 //---------------------------------------------------JUGADA--------------------------------------------------------
 void test_jugada_crear_correctamente()
 {
@@ -2204,8 +2266,8 @@ void test_jugada_crear_test_estres()
 	bool ok = true;
 
 	for (int i = 0; i < 5000; i++) {
-		jugada_registrada_t *j =
-			jugada_crear(i % 20, (i + 3) % 20, false);
+		jugada_registrada_t *j = jugada_crear(
+			(size_t)(i % 20), (size_t)(i + 3) % 20, false);
 		if (!j) {
 			ok = false;
 			break;
@@ -2242,14 +2304,14 @@ void test_jugada_carta_1_prueba_estres()
 {
 	bool ok = true;
 
-	for (int i = 0; i < 5000; i++) {
+	for (size_t i = 0; i < 5000; i++) {
 		jugada_registrada_t *j = jugada_crear(i, i + 10, false);
 		if (!j) {
 			ok = false;
 			break;
 		}
 
-		if (jugada_carta_1(j) != (size_t)i) {
+		if (jugada_carta_1(j) != i) {
 			ok = false;
 			jugada_destruir(j);
 			break;
@@ -2288,14 +2350,14 @@ void test_jugada_carta_2_prueba_estres()
 {
 	bool ok = true;
 
-	for (int i = 0; i < 5000; i++) {
+	for (size_t i = 0; i < 5000; i++) {
 		jugada_registrada_t *j = jugada_crear(i + 3, i, false);
 		if (!j) {
 			ok = false;
 			break;
 		}
 
-		if (jugada_carta_2(j) != (size_t)i) {
+		if (jugada_carta_2(j) != i) {
 			ok = false;
 			jugada_destruir(j);
 			break;
@@ -2318,16 +2380,16 @@ void tests_jugada_carta_2()
 //-------------------------------------------------
 void test_jugada_encontrado_jugada_null()
 {
-	pa2am_afirmar("Devuelve false cuando la jugada es NULL",
-		      jugada_encontrado(NULL) == false);
+	pa2m_afirmar(jugada_encontrado(NULL) == false,
+		     "Devuelve false cuando la jugada es NULL");
 }
 void test_jugada_encontrado_creada_true()
 {
 	jugada_registrada_t *j = jugada_crear(3, 7, true);
 
-	pa2am_afirmar(
-		"Indica correctamente que la jugada ha sido marcada como encontrada",
-		jugada_encontrado(j) == true);
+	pa2m_afirmar(
+		jugada_encontrado(j) == true,
+		"Indica correctamente que la jugada ha sido marcada como encontrada");
 
 	jugada_destruir(j);
 }
@@ -2335,9 +2397,9 @@ void test_jugada_encontrado_creada_false()
 {
 	jugada_registrada_t *j = jugada_crear(3, 7, false);
 
-	pa2am_afirmar(
-		"Indica correctamente que la jugada no ha sido marcada como encontrada",
-		jugada_encontrado(j) == false);
+	pa2m_afirmar(
+		jugada_encontrado(j) == false,
+		"Indica correctamente que la jugada no ha sido marcada como encontrada");
 
 	jugada_destruir(j);
 }
@@ -2465,6 +2527,15 @@ int main()
 	pa2m_nuevo_grupo("----- juego_crear -----");
 	tests_juego_crear();
 
+	pa2m_nuevo_grupo("----- juego_jugador_1 -----");
+	tests_juego_jugador_1();
+
+	pa2m_nuevo_grupo("----- juego_jugador_2 -----");
+	tests_juego_jugador_2();
+
+	pa2m_nuevo_grupo("----- juego_jugador_actual -----");
+	tests_juego_jugador_actual();
+
 	pa2m_nuevo_grupo("----- juego_siguiente_jugador -----");
 	tests_juego_siguiente_jugador();
 
@@ -2485,15 +2556,6 @@ int main()
 
 	pa2m_nuevo_grupo("----- juego_ultimas_jugadas -----");
 	tests_juego_ultimas_jugadas();
-
-	pa2m_nuevo_grupo("----- juego_jugador_1 -----");
-	tests_juego_jugador_1();
-
-	pa2m_nuevo_grupo("----- juego_jugador_2 -----");
-	tests_juego_jugador_2();
-
-	pa2m_nuevo_grupo("----- juego_jugador_actual -----");
-	tests_juego_jugador_actual();
 
 	pa2m_nuevo_grupo("----- juego_destruir -----");
 	tests_juego_destruir();

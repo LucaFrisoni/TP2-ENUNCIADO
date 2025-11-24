@@ -510,8 +510,9 @@ void loop_juego(juego_t *juego, lista_t *juego_lista)
 			"Elige la segunda carta:", juego, idx_1);
 		imprimir_carta_boca_arriba(juego_lista, idx_2);
 
-		bool encontrada = juego_carta_encontrada(juego, idx_1, idx_2);
-		juego_registrar_jugada(juego, idx_1, idx_2, encontrada);
+		bool encontrada =
+			juego_carta_encontrada(juego, idx_1 - 1, idx_2 - 1);
+		juego_registrar_jugada(juego, idx_1 - 1, idx_2 - 1, encontrada);
 
 		if (encontrada) {
 			printf("%sCarta encontrada!%s\n", ANSI_COLOR_GREEN,

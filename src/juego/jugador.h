@@ -22,7 +22,7 @@ void jugador_sumar_puntaje(jugador_t *jugador);
 bool jugador_registrar_jugada(jugador_t *jugador, jugada_registrada_t *jugada);
 
 // Devuelve el registro de jugadas del jugador
-lista_t *jugador_registro_jugadas(jugador_t *jugador);
+void *jugador_registro_jugadas(jugador_t *jugador);
 
 // Libera jugador
 void jugador_destruir(jugador_t *jugador);

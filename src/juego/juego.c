@@ -177,10 +177,8 @@ bool juego_carta_encontrada(juego_t *juego, size_t idx_p1, size_t idx_p2)
 {
 	if (!juego)
 		return false;
-	struct pokemon *p1 =
-		lista_buscar_elemento(juego->lista_cartas, idx_p1 - 1);
-	struct pokemon *p2 =
-		lista_buscar_elemento(juego->lista_cartas, idx_p2 - 1);
+	struct pokemon *p1 = lista_buscar_elemento(juego->lista_cartas, idx_p1);
+	struct pokemon *p2 = lista_buscar_elemento(juego->lista_cartas, idx_p2);
 	if (!p1 || !p2)
 		return false;
 	return p1->id == p2->id;
@@ -215,10 +213,10 @@ bool juego_registrar_jugada(juego_t *juego, size_t idx_p1, size_t idx_p2,
 		return false;
 
 	if (encontrada) {
-		struct pokemon *p1 = lista_eliminar_elemento(
-			juego->lista_cartas, idx_p1 - 1);
-		struct pokemon *p2 = lista_eliminar_elemento(
-			juego->lista_cartas, idx_p2 - 1);
+		struct pokemon *p1 =
+			lista_eliminar_elemento(juego->lista_cartas, idx_p1);
+		struct pokemon *p2 =
+			lista_eliminar_elemento(juego->lista_cartas, idx_p2);
 
 		return p1 && p2;
 	}
@@ -228,6 +226,9 @@ bool juego_registrar_jugada(juego_t *juego, size_t idx_p1, size_t idx_p2,
 //------------------------------------------------------------------------------------------
 bool juego_terminado(juego_t *juego)
 {
+	if (!juego)
+		return false;
+
 	return (int)lista_cantidad(juego->lista_cartas) == 0;
 }
 //------------------------------------------------------------------------------------------
@@ -257,16 +258,7 @@ void juego_destruir(juego_t *juego)
 	if (!juego)
 		return;
 
-	lista_t *jugadas_jg1 = jugador_registro_jugadas(juego->jugador1);
-	lista_t *jugadas_jg2 = jugador_registro_jugadas(juego->jugador2);
-
-	//Destruimos jugadas
-	if (jugadas_jg1)
-		lista_destruir_todo(jugadas_jg1, jugada_destruir);
-	if (jugadas_jg2)
-		lista_destruir_todo(jugadas_jg2, jugada_destruir);
-
-	//	Destruimos jugador
+	//	Destruimos jugador y los registros de jugadas
 	if (juego->jugador1)
 		jugador_destruir(juego->jugador1);
 	if (juego->jugador2)
