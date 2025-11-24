@@ -22,16 +22,16 @@ bool juego_carta_encontrada(juego_t *juego, size_t idx_p1, size_t idx_p2);
 bool juego_registrar_jugada(juego_t *juego, size_t idx_p1, size_t idx_p2,
 			    bool encontrada);
 
-// Devuelve si aun siguen quedando cartas o no
+//Devuelve si aun siguen quedando cartas o no
 bool juego_terminado(juego_t *juego);
 
-// Devuelve la cantidad de cartas en juego
+//Devuelve la cantidad de cartas en juego
 size_t juego_cartas_restantes(juego_t *juego);
 
-// Devuelve la estructura donde se guardan las cartas para mostrarlas
+//Devuelve la estructura donde se guardan las cartas para mostrarlas
 void *juego_cartas_lista(juego_t *juego);
 
-// Devuelve la estructura donde se guardan las utlimas jugadas
+//Devuelve la estructura donde se guardan las utlimas jugadas
 void *juego_ultimas_jugadas(juego_t *juego);
 
 //Devuelve el jugador 1
@@ -45,8 +45,5 @@ jugador_t *juego_jugador_actual(juego_t *juego);
 
 // Libera juego
 void juego_destruir(juego_t *juego);
-
-// Libera las estructuras del juego y sus jugadas
-void juego_destruir_todo(juego_t *juego, bool destructor);
 
 #endif // JUEGO_H

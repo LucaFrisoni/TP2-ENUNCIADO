@@ -6,6 +6,6 @@ compilar:
 compilar_t:
 	gcc $(CFLAGS) pruebas_alumno.c src/*.c src/estructuras_de_datos/*.c src/juego/*.c -o tests
 valgrind:
-	valgrind $(VALGRIND_FLAGS) ./programa assets/pokemones.csv buscar nombre Pikachu
+	valgrind $(VALGRIND_FLAGS) ./programa assets/pokemones.csv 
 valgrind_t:
 	valgrind $(VALGRIND_FLAGS) ./tests

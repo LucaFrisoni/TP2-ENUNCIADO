@@ -28,7 +28,7 @@ static char *copiar_string(const char *s)
 opcion_t *opcion_crear(menu_t *submenu, char tecla, const char *descripcion,
 		       menu_action_t accion)
 {
-	if (!tecla || !descripcion)
+	if (!descripcion)
 		return NULL;
 
 	opcion_t *opcion = calloc(1, sizeof(opcion_t));
@@ -49,21 +49,31 @@ opcion_t *opcion_crear(menu_t *submenu, char tecla, const char *descripcion,
 //----------------------------------------------------------------------------------------------------------
 char opcion_tecla(opcion_t *opcion)
 {
+	if (!opcion)
+		return 0;
+
 	return opcion->tecla;
 }
 //----------------------------------------------------------------------------------------------------------
 char *opcion_descripcion(opcion_t *opcion)
 {
+	if (!opcion)
+		return 0;
 	return opcion->descripcion;
 }
 //----------------------------------------------------------------------------------------------------------
 menu_action_t opcion_accion(opcion_t *opcion)
 {
+	if (!opcion)
+		return NULL;
+
 	return opcion->accion;
 }
 //----------------------------------------------------------------------------------------------------------
 void opcion_destruir(void *opcion)
 {
+	if (!opcion)
+		return;
 	opcion_t *op = opcion;
 	free(op->descripcion);
 	free(op);

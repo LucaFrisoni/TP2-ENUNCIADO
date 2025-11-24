@@ -16,7 +16,7 @@ struct menu {
 	menu_estilo_t estilo;
 };
 
-static char *copiar_string(const char *s)
+static char *copiar_string(char *s)
 {
 	if (!s)
 		return NULL;
@@ -29,7 +29,7 @@ static char *copiar_string(const char *s)
 	return nuevo;
 }
 
-menu_t *menu_crear(const char *titulo)
+menu_t *menu_crear(char *titulo)
 {
 	if (!titulo)
 		return NULL;
@@ -68,7 +68,7 @@ size_t menu_cantidad(menu_t *menu)
 	return lista_cantidad(menu->lista_opciones);
 }
 //--------------------------------------------------------------------------------------------
-int menu_agregar(menu_t *menu, char tecla, const char *descripcion,
+int menu_agregar(menu_t *menu, char tecla, char *descripcion,
 		 menu_action_t accion, menu_t *submenu)
 {
 	if (!menu || !descripcion)
@@ -101,7 +101,7 @@ int menu_agregar(menu_t *menu, char tecla, const char *descripcion,
 	return MENU_EXITO;
 }
 
-int menu_agregar_opcion(menu_t *menu, char tecla, const char *descripcion,
+int menu_agregar_opcion(menu_t *menu, char tecla, char *descripcion,
 			menu_action_t accion)
 {
 	if (!accion)
@@ -110,7 +110,7 @@ int menu_agregar_opcion(menu_t *menu, char tecla, const char *descripcion,
 	return menu_agregar(menu, tecla, descripcion, accion, NULL);
 }
 
-int menu_agregar_submenu(menu_t *menu, char tecla, const char *descripcion,
+int menu_agregar_submenu(menu_t *menu, char tecla, char *descripcion,
 			 menu_t *submenu)
 {
 	if (!submenu)
@@ -119,54 +119,17 @@ int menu_agregar_submenu(menu_t *menu, char tecla, const char *descripcion,
 	return menu_agregar(menu, tecla, descripcion, NULL, submenu);
 }
 //--------------------------------------------------------------------------------------------
-int comparar_opcion_por_tecla(const void *a, const void *b)
-{
-	const opcion_t *op1_const = a;
-	const char *tecla_buscada = b;
-
-	if (!op1_const || !tecla_buscada)
-		return -1;
-
-	// Cast para llamar a opcion_tecla(), que no recibe const
-	opcion_t *op1 = (opcion_t *)op1_const;
-
-	return (opcion_tecla(op1) == *tecla_buscada) ? 0 : -1;
-}
-
-int menu_eliminar_opcion(menu_t *menu, char tecla)
-{
-	if (!menu || !tecla)
-		return MENU_ERROR_NULL;
-
-	opcion_t *opcion_hash = hash_quitar(menu->hash_opciones, &tecla);
-	if (!opcion_hash)
-		return MENU_ERROR_HASH;
-
-	int posicion = lista_buscar_posicion(menu->lista_opciones, &tecla,
-					     comparar_opcion_por_tecla);
-
-	if (posicion == -1) {
-		opcion_destruir(opcion_hash);
-		return MENU_ERROR_LISTA;
-	}
-
-	opcion_t *opcion_lista =
-		lista_eliminar_elemento(menu->lista_opciones, (size_t)posicion);
-
-	opcion_destruir(opcion_lista);
-
-	return MENU_EXITO;
-}
-//--------------------------------------------------------------------------------------------
 int menu_set_estilo(menu_t *menu, menu_estilo_t estilo)
 {
 	if (!menu)
 		return MENU_ERROR_NULL;
+	if (estilo < 0 || estilo >= MENU_ESTILO_MAX)
+		return MENU_ERROR_ESTILO_INVALIDO;
 	menu->estilo = estilo;
 	return MENU_EXITO;
 }
 
-menu_estilo_t menu_get_estilo(menu_t *menu)
+int menu_get_estilo(menu_t *menu)
 {
 	if (!menu)
 		return MENU_ERROR_NULL;
@@ -271,13 +234,12 @@ void *menu_ejecutar(menu_t *menu, char tecla, void *contexto)
 	return accion(contexto);
 }
 //--------------------------------------------------------------------------------------------
-
-void menu_destruir_interno(menu_t *menu, bool destruir_opciones)
+void menu_destruir(menu_t *menu)
 {
 	if (!menu)
 		return;
 
-	if (destruir_opciones)
+	if (!menu_cantidad(menu))
 		lista_destruir_todo(menu->lista_opciones, opcion_destruir);
 	else
 		lista_destruir(menu->lista_opciones);
@@ -285,14 +247,4 @@ void menu_destruir_interno(menu_t *menu, bool destruir_opciones)
 	hash_destruir(menu->hash_opciones);
 	free(menu->titulo);
 	free(menu);
-}
-
-void menu_destruir(menu_t *menu)
-{
-	menu_destruir_interno(menu, false);
-}
-
-void menu_destruir_todo(menu_t *menu)
-{
-	menu_destruir_interno(menu, true);
 }

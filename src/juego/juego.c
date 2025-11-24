@@ -52,7 +52,6 @@ bool insertar_doble(lista_t *l, struct pokemon *p)
 
 	return true;
 }
-
 bool debe_saltarse_insertar(contexto_cartas_t *c)
 {
 	size_t restantes = CANT_POKEMONES_CARTAS - c->insertados;
@@ -63,7 +62,6 @@ bool debe_saltarse_insertar(contexto_cartas_t *c)
 
 	return (r > prob);
 }
-
 bool insertar_pokemon_random(struct pokemon *p, void *ctx)
 {
 	contexto_cartas_t *c = ctx;
@@ -85,7 +83,6 @@ bool insertar_pokemon_random(struct pokemon *p, void *ctx)
 
 	return true;
 }
-
 bool cargar_cartas_random(juego_t *juego, tp1_t *tp1)
 {
 	contexto_cartas_t ctx;
@@ -180,8 +177,10 @@ bool juego_carta_encontrada(juego_t *juego, size_t idx_p1, size_t idx_p2)
 {
 	if (!juego)
 		return false;
-	struct pokemon *p1 = lista_buscar_elemento(juego->lista_cartas, idx_p1);
-	struct pokemon *p2 = lista_buscar_elemento(juego->lista_cartas, idx_p2);
+	struct pokemon *p1 =
+		lista_buscar_elemento(juego->lista_cartas, idx_p1 - 1);
+	struct pokemon *p2 =
+		lista_buscar_elemento(juego->lista_cartas, idx_p2 - 1);
 	if (!p1 || !p2)
 		return false;
 	return p1->id == p2->id;
@@ -216,10 +215,10 @@ bool juego_registrar_jugada(juego_t *juego, size_t idx_p1, size_t idx_p2,
 		return false;
 
 	if (encontrada) {
-		struct pokemon *p1 =
-			lista_eliminar_elemento(juego->lista_cartas, idx_p1);
-		struct pokemon *p2 =
-			lista_eliminar_elemento(juego->lista_cartas, idx_p2);
+		struct pokemon *p1 = lista_eliminar_elemento(
+			juego->lista_cartas, idx_p1 - 1);
+		struct pokemon *p2 = lista_eliminar_elemento(
+			juego->lista_cartas, idx_p2 - 1);
 
 		return p1 && p2;
 	}
@@ -253,31 +252,31 @@ size_t juego_cartas_restantes(juego_t *juego)
 	return lista_cantidad(juego->lista_cartas);
 }
 //------------------------------------------------------------------------------------------
-void juego_destruir_todo(juego_t *juego, bool destructor)
+void juego_destruir(juego_t *juego)
 {
 	if (!juego)
 		return;
 
+	lista_t *jugadas_jg1 = jugador_registro_jugadas(juego->jugador1);
+	lista_t *jugadas_jg2 = jugador_registro_jugadas(juego->jugador2);
+
+	//Destruimos jugadas
+	if (jugadas_jg1)
+		lista_destruir_todo(jugadas_jg1, jugada_destruir);
+	if (jugadas_jg2)
+		lista_destruir_todo(jugadas_jg2, jugada_destruir);
+
+	//	Destruimos jugador
 	if (juego->jugador1)
 		jugador_destruir(juego->jugador1);
 	if (juego->jugador2)
 		jugador_destruir(juego->jugador2);
+
+	//Destruimos el juego
 	if (juego->lista_cartas)
 		lista_destruir(juego->lista_cartas);
-
-	if (juego->ultimas_jugadas) {
-		if (destructor) {
-			lista_destruir_todo(juego->ultimas_jugadas,
-					    jugada_destruir);
-		} else {
-			lista_destruir(juego->ultimas_jugadas);
-		}
-	}
+	if (juego->ultimas_jugadas)
+		lista_destruir(juego->ultimas_jugadas);
 
 	free(juego);
-}
-
-void juego_destruir(juego_t *juego)
-{
-	juego_destruir_todo(juego, false);
 }

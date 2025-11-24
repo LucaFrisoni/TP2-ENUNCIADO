@@ -27,7 +27,8 @@ typedef enum {
 	MENU_ERROR_OPCION = -2,
 	MENU_ERROR_LISTA = -3,
 	MENU_ERROR_HASH = -4,
-	MENU_ERROR_DINAMICO = -5
+	MENU_ERROR_DINAMICO = -5,
+	MENU_ERROR_ESTILO_INVALIDO = -6
 } menu_codigos_t;
 
 /* =======================================================
@@ -52,8 +53,6 @@ typedef enum {
 #define MAX_POR_FILA 5
 #define LINEAS 7
 #define LINEAS_HISTORIAL 3
-// #define ACTIONS_EXITO ((void *)0)
-// #define ACTIONS_ERROR_DINAMICO ((void *)1)
-// #define ACTIONS_ERROR_SCANF ((void *)2)
+#define MAX_BUFFER 100
 
 #endif /* CONSTANTES_H */

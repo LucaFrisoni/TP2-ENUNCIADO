@@ -90,9 +90,11 @@ lista_t *jugador_registro_jugadas(jugador_t *jugador)
 	return jugador->registro_jugadas;
 }
 //------------------------------------------------------------------------------------------
-
 void jugador_destruir(jugador_t *jugador)
 {
+	if (!jugador)
+		return;
+
 	if (jugador->nombre)
 		free(jugador->nombre);
 	if (jugador->registro_jugadas)

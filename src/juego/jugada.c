@@ -43,6 +43,8 @@ bool jugada_encontrado(jugada_registrada_t *jugada)
 
 void jugada_destruir(void *jugada_void)
 {
+	if (!jugada_void)
+		return;
 	jugada_registrada_t *jugada = jugada_void;
 	free(jugada);
 }

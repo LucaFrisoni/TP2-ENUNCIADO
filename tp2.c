@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 #include "src/ansi.h"
 #include "src/estructuras_de_datos/menu.h"
@@ -8,30 +9,33 @@
 #include "src/constantes.h"
 #include "src/actions.h"
 
-struct contexto_jugar {
-	tp1_t *tp1;
-	char *nombre1;
-	char *nombre2;
-};
-
 //-------------------------------------------Funciones aux-------------------------------------------------------------
 char leer_tecla()
 {
-	int c;
+	char buffer[MAX_BUFFER];
 
-	printf("%sIngrese la opción deseada:%s\n", ANSI_COLOR_BLUE,
-	       ANSI_COLOR_RESET);
+	while (true) {
+		printf("%sIngrese la opción deseada:%s\n", ANSI_COLOR_BLUE,
+		       ANSI_COLOR_RESET);
 
-	do {
-		c = getchar();
-	} while (c == '\n' || c == '\r');
+		if (!fgets(buffer, sizeof(buffer), stdin)) {
+			continue;
+		}
 
-	c = toupper(c);
+		fflush(stdin);
+		buffer[strcspn(buffer, "\n")] = '\0';
 
-	return (char)c;
+		if (strlen(buffer) != 1) {
+			printf("%sOpción inválida. Ingrese solo una letra.%s\n",
+			       ANSI_COLOR_RED, ANSI_COLOR_RESET);
+			continue;
+		}
+
+		return (char)toupper((unsigned char)buffer[0]);
+	}
 }
 
-tp1_t *cargar_archivo_inicial(menu_t *menu, const char *ruta_archivo)
+tp1_t *cargar_archivo_inicial(char *ruta_archivo)
 {
 	tp1_t *tp1 = tp1_leer_archivo(ruta_archivo);
 
@@ -44,7 +48,6 @@ tp1_t *cargar_archivo_inicial(menu_t *menu, const char *ruta_archivo)
 
 	return tp1;
 }
-
 //-------------------------------------------Validaciones-------------------------------------------------------------
 bool validando_params(int argc, char *argv[])
 {
@@ -107,28 +110,19 @@ bool cargar_opciones_principal(menu_t *menu, menu_t *sub_menu_buscar,
 	       menu_agregar_opcion(menu, 'Q', "Salir del juego", salir) == 0;
 }
 
-bool creando_menu(menu_t **menu_principal, menu_t **sub_menu_buscar,
-		  menu_t **sub_menu_mostrar)
+bool creando_menu(menu_t *menu_principal, menu_t *sub_menu_buscar,
+		  menu_t *sub_menu_mostrar)
 {
 	if (!menu_principal || !sub_menu_buscar || !sub_menu_mostrar)
 		return false;
 
-	*menu_principal = menu_crear("======= MENU TP2 =======");
-	*sub_menu_buscar = menu_crear("|----- BUSCAR -----|");
-	*sub_menu_mostrar = menu_crear("|----- MOSTRAR -----|");
-
-	if (!*menu_principal || !*sub_menu_buscar || !*sub_menu_mostrar)
-		return false;
-
-	bool ok_buscar = cargar_opciones_buscar(*sub_menu_buscar);
-	bool ok_mostrar = cargar_opciones_mostrar(*sub_menu_mostrar);
+	bool ok_buscar = cargar_opciones_buscar(sub_menu_buscar);
+	bool ok_mostrar = cargar_opciones_mostrar(sub_menu_mostrar);
 	bool ok_princ = cargar_opciones_principal(
-		*menu_principal, *sub_menu_buscar, *sub_menu_mostrar);
+		menu_principal, sub_menu_buscar, sub_menu_mostrar);
 
 	return ok_buscar && ok_mostrar && ok_princ;
 }
-//-------------------------------------------Juego-----------------------------------------------------------
-
 //-------------------------------------------Cases Switch------------------------------------------------------------
 tp1_t *case_cargar(menu_t *menu, char tecla)
 {
@@ -188,7 +182,6 @@ void procesar_submenu(menu_t *submenu, tp1_t *tp1, const char *nombre)
 		       ANSI_COLOR_RESET);
 	}
 }
-
 void switch_principal(char tecla, menu_t *menu, menu_t *sub_menu_buscar,
 		      menu_t *sub_menu_mostrar, tp1_t *tp1, bool *continuar)
 {
@@ -224,12 +217,9 @@ void switch_principal(char tecla, menu_t *menu, menu_t *sub_menu_buscar,
 }
 
 void ejecutar_menu(menu_t *menu, menu_t *sub_menu_buscar,
-		   menu_t *sub_menu_mostrar, char *ruta_archivo)
+		   menu_t *sub_menu_mostrar, tp1_t *tp1)
 {
-	tp1_t *tp1 = NULL;
 	bool continuar = true;
-	if (ruta_archivo)
-		tp1 = cargar_archivo_inicial(menu, ruta_archivo);
 
 	while (continuar) {
 		if (menu_mostrar(menu) != 0) {
@@ -244,6 +234,15 @@ void ejecutar_menu(menu_t *menu, menu_t *sub_menu_buscar,
 				 tp1, &continuar);
 	}
 }
+//--------------------------------------------Destruccion-----------------------------------------------------------
+void liberar_memoria(menu_t *menu_principal, menu_t *sub_menu_buscar,
+		     menu_t *sub_menu_mostrar, tp1_t *tp1)
+{
+	menu_destruir(sub_menu_buscar);
+	menu_destruir(sub_menu_mostrar);
+	menu_destruir(menu_principal);
+	tp1_destruir(tp1);
+}
 
 //-------------------------------------------------------------------------------------------------------
 
@@ -252,18 +251,19 @@ int main(int argc, char *argv[])
 	if (!validando_params(argc, argv))
 		return TP2_ERROR_VALIDANDO_PARAMS;
 
-	menu_t *menu = NULL;
-	menu_t *sub_menu_buscar = NULL;
-	menu_t *sub_menu_mostrar = NULL;
-	char *ruta_archivo = NULL;
+	menu_t *menu = menu_crear("======= MENU TP2 =======");
+	menu_t *sub_menu_buscar = menu_crear("|----- BUSCAR -----|");
+	menu_t *sub_menu_mostrar = menu_crear("|----- MOSTRAR -----|");
+	tp1_t *tp1 = NULL;
 
-	if (!creando_menu(&menu, &sub_menu_buscar, &sub_menu_mostrar))
+	if (!creando_menu(menu, sub_menu_buscar, sub_menu_mostrar))
 		return TP2_ERROR_CREANDO_MENU;
 
 	if (argc == 2)
-		ruta_archivo = argv[PARAMETRO_ARCHIVO_POKEDEX];
+		tp1 = cargar_archivo_inicial(argv[PARAMETRO_ARCHIVO_POKEDEX]);
 
-	ejecutar_menu(menu, sub_menu_buscar, sub_menu_mostrar, ruta_archivo);
+	ejecutar_menu(menu, sub_menu_buscar, sub_menu_mostrar, tp1);
+	liberar_memoria(menu, sub_menu_buscar, sub_menu_mostrar, tp1);
 
 	return TP2_EXITO;
 }
