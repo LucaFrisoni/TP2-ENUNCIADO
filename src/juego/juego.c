@@ -213,12 +213,22 @@ bool juego_registrar_jugada(juego_t *juego, size_t idx_p1, size_t idx_p2,
 		return false;
 
 	if (encontrada) {
-		struct pokemon *p1 =
-			lista_eliminar_elemento(juego->lista_cartas, idx_p1);
-		struct pokemon *p2 =
-			lista_eliminar_elemento(juego->lista_cartas, idx_p2);
+		size_t a = idx_p1 - 1;
+		size_t b = idx_p2 - 1;
 
-		return p1 && p2;
+		if (a > b) {
+			struct pokemon *p1 =
+				lista_eliminar_elemento(juego->lista_cartas, a);
+			struct pokemon *p2 =
+				lista_eliminar_elemento(juego->lista_cartas, b);
+			return p1 && p2;
+		} else {
+			struct pokemon *p1 =
+				lista_eliminar_elemento(juego->lista_cartas, b);
+			struct pokemon *p2 =
+				lista_eliminar_elemento(juego->lista_cartas, a);
+			return p1 && p2;
+		}
 	}
 
 	return true;

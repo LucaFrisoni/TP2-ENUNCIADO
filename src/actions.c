@@ -119,37 +119,38 @@ void *buscar_por_nombre(void *contexto)
 {
 	tp1_t *tp1 = contexto;
 
-	char *nombre_pk = calloc(LARGO_NOMBRE_POKEMON, sizeof(char));
-	if (!nombre_pk)
-		return NULL;
+	char nombre_pk[LARGO_NOMBRE_POKEMON];
 
 	printf(ANSI_COLOR_BLUE
 	       "Ingrese el nombre de pokemon a buscar:\n" ANSI_COLOR_RESET);
 
-	if (scanf(" %s", nombre_pk) != 1) {
-		free(nombre_pk);
+	if (!fgets(nombre_pk, sizeof(nombre_pk), stdin))
 		return NULL;
-	}
+
+	// Quitar el salto de línea
+	nombre_pk[strcspn(nombre_pk, "\n")] = '\0';
 
 	struct pokemon *pk = tp1_buscar_nombre(tp1, nombre_pk);
-
-	free(nombre_pk);
 
 	if (!mostrar_pokemon(pk, NULL))
 		printf(ANSI_COLOR_RED
 		       "Pokemon no encontrado\n" ANSI_COLOR_RESET);
-
 	return NULL;
 }
 void *buscar_por_id(void *contexto)
 {
 	tp1_t *tp1 = contexto;
+	char buffer[MAX_BUFFER]; // buffer temporal para leer la línea
 	int id;
 
 	printf(ANSI_COLOR_BLUE
 	       "Ingrese el id de pokemon a buscar:\n" ANSI_COLOR_RESET);
 
-	if (scanf(" %d", &id) != 1)
+	if (!fgets(buffer, sizeof(buffer), stdin))
+		return NULL;
+
+	// Convertir a número
+	if (sscanf(buffer, "%d", &id) != 1)
 		return NULL;
 
 	struct pokemon *pk = tp1_buscar_id(tp1, id);
@@ -189,22 +190,19 @@ void *mostrar_por_id(void *contexto)
 }
 void *cargar_archivo(void *contexto)
 {
-	char *nombre_archivo = calloc(LARGO_NOMBRE_ARCHIVO, sizeof(char));
-	if (!nombre_archivo)
-		return NULL;
+	char nombre_archivo[LARGO_NOMBRE_ARCHIVO];
 
 	printf(ANSI_COLOR_BLUE
 	       "Ingrese la ruta del archivo para cargarlo:\n" ANSI_COLOR_RESET);
 
-	if (scanf(" %s", nombre_archivo) != 1) {
-		free(nombre_archivo);
+	if (!fgets(nombre_archivo, sizeof(nombre_archivo), stdin)) {
 		return NULL;
 	}
 
+	// Quitar salto de línea
+	nombre_archivo[strcspn(nombre_archivo, "\n")] = '\0';
+
 	tp1_t *tp1 = tp1_leer_archivo(nombre_archivo);
-
-	free(nombre_archivo);
-
 	return tp1;
 }
 //-----------------------------------Juego----------------------------------------
@@ -512,7 +510,7 @@ void loop_juego(juego_t *juego, lista_t *juego_lista)
 
 		bool encontrada =
 			juego_carta_encontrada(juego, idx_1 - 1, idx_2 - 1);
-		juego_registrar_jugada(juego, idx_1 - 1, idx_2 - 1, encontrada);
+		juego_registrar_jugada(juego, idx_1, idx_2, encontrada);
 
 		if (encontrada) {
 			printf("%sCarta encontrada!%s\n", ANSI_COLOR_GREEN,

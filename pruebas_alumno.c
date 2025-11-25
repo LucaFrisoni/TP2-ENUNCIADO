@@ -819,7 +819,6 @@ void test_menu_destruir_menu_con_submenus()
 	menu_agregar_opcion(m, 's', "da", NULL);
 	menu_agregar_submenu(m, 'x', "Adasd", sub);
 
-	menu_destruir(sub);
 	menu_destruir(m);
 
 	pa2m_afirmar(
@@ -895,7 +894,6 @@ void test_opcion_crear_con_submenu()
 	pa2m_afirmar(op != NULL, "Crear opción con submenu funciona");
 
 	opcion_destruir(op);
-	menu_destruir(sub_menu);
 }
 void test_opcion_crear_descripcion_repetida()
 {
@@ -940,7 +938,6 @@ void test_opcion_crear_con_submenu_varias_veces()
 	opcion_destruir(op);
 	opcion_destruir(op2);
 	opcion_destruir(op3);
-	menu_destruir(sub_menu);
 }
 
 void tests_opcion_crear()
@@ -1579,7 +1576,7 @@ void test_juego_registrar_jugada_elimina_carta_encontrada()
 	if (p1 && p2)
 		p2->id = p1->id;
 
-	pa2m_afirmar(juego_registrar_jugada(j, 0, 1, true),
+	pa2m_afirmar(juego_registrar_jugada(j, 1, 2, true),
 		     "Registrar jugada encontrada devuelve true");
 
 	size_t cantidad_final = juego_cartas_restantes(j);
@@ -1787,7 +1784,7 @@ void test_juego_destruir_correctamente_sin_cartas()
 	size_t cant;
 
 	for (size_t i = 0; i < 10; i++)
-		juego_registrar_jugada(j, 0, 1, true); //Fuerzo el encuentro
+		juego_registrar_jugada(j, 1, 2, true); //Fuerzo el encuentro
 
 	cant = juego_cartas_restantes(j);
 
