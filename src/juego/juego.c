@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 #include <string.h>
+#include <time.h>
 #include <stdlib.h>
 
 struct juego {

@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
+#include <stdint.h>
 #include "actions.h"
 #include "estructuras_de_datos/tp1.h"
 #include "juego/juego.h"
@@ -13,6 +15,13 @@ struct contexto_pk {
 };
 
 //-----------------------------------Funciones auxileares----------------------------------------
+
+void limpiar_input()
+{
+	int c;
+	while ((c = getchar()) != '\n' && c != EOF)
+		;
+}
 
 char *convert_tipo_a_string(enum tipo_pokemon tipo)
 {
@@ -114,6 +123,80 @@ void imprimir_estilo(int estilo)
 		break;
 	}
 }
+
+void inicializar_aleatorio_default()
+{
+	srand((unsigned int)time(NULL));
+}
+void inicializar_aleatorio_con_semilla(int semilla)
+{
+	srand((unsigned int)semilla);
+}
+
+char *pedir_string_usuario(char *mensaje)
+{
+	char *nombre = calloc(LARGO_NOMBRE_USUARIO, sizeof(char));
+	if (!nombre)
+		return NULL;
+
+	printf("%s%s%s\n", ANSI_COLOR_BLUE, mensaje, ANSI_COLOR_RESET);
+
+	if (scanf(" %s", nombre) != 1) {
+		free(nombre);
+		return NULL;
+	}
+	return nombre;
+}
+bool carta_valida(size_t carta, size_t carta_ant, size_t cantidad)
+{
+	if (carta == 0 || carta > cantidad) {
+		printf("%sValor fuera de rango. Debe estar entre 1 y %zu.%s\n",
+		       ANSI_COLOR_RED, cantidad, ANSI_COLOR_RESET);
+		return false;
+	}
+
+	if (carta == carta_ant) {
+		printf("%sNo podes seleccionar la misma carta.%s\n",
+		       ANSI_COLOR_RED, ANSI_COLOR_RESET);
+		return false;
+	}
+
+	return true;
+}
+int pedir_numero_generico(char *mensaje, bool es_carta, juego_t *juego,
+			  size_t carta_ant)
+{
+	int numero;
+	size_t cantidad = juego ? juego_cartas_restantes(juego) : 0;
+
+	while (true) {
+		printf("%s%s%s\n", ANSI_COLOR_BLUE, mensaje, ANSI_COLOR_RESET);
+
+		if (scanf(" %d", &numero) != 1) {
+			limpiar_input();
+			printf("%sValor ingresado incorrecto. Debe ser un número.%s\n",
+			       ANSI_COLOR_RED, ANSI_COLOR_RESET);
+			continue;
+		}
+
+		// Validación de carta si corresponde
+		if (es_carta &&
+		    !carta_valida((size_t)numero, carta_ant, cantidad))
+			continue;
+
+		break;
+	}
+
+	return numero;
+}
+size_t pedir_carta_usuario(char *mensaje, juego_t *juego, size_t carta_ant)
+{
+	return (size_t)pedir_numero_generico(mensaje, true, juego, carta_ant);
+}
+int pedir_numero_usuario(char *mensaje)
+{
+	return pedir_numero_generico(mensaje, false, NULL, 0);
+}
 //---------------------------------------------------------------------Actions----------------------------------------
 void *buscar_por_nombre(void *contexto)
 {
@@ -206,62 +289,6 @@ void *cargar_archivo(void *contexto)
 	return tp1;
 }
 //-----------------------------------Juego----------------------------------------
-char *pedir_string_usuario(char *mensaje)
-{
-	char *nombre = calloc(LARGO_NOMBRE_USUARIO, sizeof(char));
-	if (!nombre)
-		return NULL;
-
-	printf("%s%s%s\n", ANSI_COLOR_BLUE, mensaje, ANSI_COLOR_RESET);
-
-	if (scanf(" %s", nombre) != 1) {
-		free(nombre);
-		return NULL;
-	}
-	return nombre;
-}
-
-bool carta_valida(size_t carta, size_t carta_ant, size_t cantidad)
-{
-	if (carta == 0 || carta > cantidad) {
-		printf("%sValor fuera de rango. Debe estar entre 1 y %zu.%s\n",
-		       ANSI_COLOR_RED, cantidad, ANSI_COLOR_RESET);
-		return false;
-	}
-
-	if (carta == carta_ant) {
-		printf("%sNo podes seleccionar la misma carta.%s\n",
-		       ANSI_COLOR_RED, ANSI_COLOR_RESET);
-		return false;
-	}
-
-	return true;
-}
-size_t pedir_carta_usuario(char *mensaje, juego_t *juego, size_t carta_ant)
-{
-	size_t pos_carta;
-	size_t cantidad = juego_cartas_restantes(juego);
-
-	while (true) {
-		printf("%s%s%s\n", ANSI_COLOR_BLUE, mensaje, ANSI_COLOR_RESET);
-
-		if (scanf(" %zu", &pos_carta) != 1) {
-			// Limpiar buffer si el input no es un número
-			int c;
-			while ((c = getchar()) != '\n' && c != EOF)
-				; // solo descartar los caracteres
-
-			printf("%sValor ingresado incorrecto. Debe ser un número.%s\n",
-			       ANSI_COLOR_RED, ANSI_COLOR_RESET);
-			continue;
-		}
-
-		if (carta_valida(pos_carta, carta_ant, cantidad))
-			break;
-	}
-
-	return pos_carta;
-}
 
 void imprimir_banner()
 {
@@ -550,17 +577,33 @@ void *jugar(void *contexto)
 	}
 
 	loop_juego(juego, juego_lista);
-
+	limpiar_input();
 	imprimir_resultado_final(juego);
 
 	juego_destruir(juego);
 
 	return NULL;
 }
+
+void *jugar_normal(void *contexto)
+{
+	tp1_t *tp1 = contexto;
+
+	inicializar_aleatorio_default();
+
+	return jugar(tp1);
+}
 //-----------------------------------------------------------------------------------
 void *jugar_con_semilla(void *contexto)
 {
-	return NULL;
+	tp1_t *tp1 = contexto;
+
+	int semilla = pedir_numero_usuario(
+		"Ingrese un número para usar como semilla: ");
+
+	inicializar_aleatorio_con_semilla(semilla);
+
+	return jugar(tp1);
 }
 void *cambiar_estilo(void *contexto)
 {

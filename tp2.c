@@ -179,7 +179,7 @@ bool cargar_opciones_principal(menu_t *menu, menu_t *sub_menu_buscar,
 		       0 &&
 	       menu_agregar_submenu(menu, 'M', "Mostrar", sub_menu_mostrar) ==
 		       0 &&
-	       menu_agregar_opcion(menu, 'J', "Jugar", jugar) == 0 &&
+	       menu_agregar_opcion(menu, 'J', "Jugar", jugar_normal) == 0 &&
 	       menu_agregar_opcion(menu, 'S', "Jugar con semilla",
 				   jugar_con_semilla) == 0 &&
 	       menu_agregar_opcion(menu, 'E', "Cambiar estilo",
@@ -234,6 +234,15 @@ void case_jugar(menu_t *menu, char tecla, tp1_t *tp1)
 	menu_ejecutar(menu, tecla, tp1);
 	return;
 }
+void case_semilla(menu_t *menu, char tecla, tp1_t *tp1)
+{
+	if (!validando_tp1(tp1, true))
+		return;
+
+	menu_ejecutar(menu, tecla, tp1);
+	return;
+}
+
 //-------------------------------------------Switchs-----------------------------------------------------------------
 void procesar_submenu(menu_t *submenu, tp1_t *tp1, const char *nombre)
 {
@@ -266,19 +275,18 @@ void switch_principal(char tecla, menu_t *menu, menu_t *sub_menu_buscar,
 	case 'C': // Cargar archivo
 		tp1 = case_cargar(menu, tecla);
 		break;
-
 	case 'B': // Buscar
 		procesar_submenu(sub_menu_buscar, tp1, "BUSCAR");
 		break;
-
 	case 'M': // Mostrar
 		procesar_submenu(sub_menu_mostrar, tp1, "MOSTRAR");
 		break;
-
 	case 'J': // Jugar
 		case_jugar(menu, tecla, tp1);
 		break;
 	case 'S': // Semilla
+		case_semilla(menu, tecla, tp1);
+		break;
 	case 'E': // Estilo
 		case_estilo(menu, sub_menu_buscar, sub_menu_mostrar, tecla);
 		break;
