@@ -245,7 +245,7 @@ Esta sección describe cómo se verifican todas las funciones primitivas del pro
 
 ### Cobertura de pruebas
 
-Se realizan 196 pruebas
+Se realizan 215 pruebas
 
 Estos tests incluyen:
 
@@ -279,7 +279,15 @@ Estos tests incluyen:
 - **`menu_get_estilo`** → O(1)
   La función solo verifica si el puntero es válido y luego retorna directamente el campo estilo de la estructura. Ambas operaciones son de tiempo constante, sin recorridos ni cálculos adicionales. Por lo tanto, su complejidad es O(1) en todos los casos.
 
-- **`menu_mostrar`** → O(n)
+- **`menu_get_titulo`** → O(1)
+  La función solo verifica si el puntero es válido y luego retorna directamente el campo titulo de la estructura. Ambas operaciones son de tiempo constante, sin recorridos ni cálculos adicionales. Por lo tanto, su complejidad es O(1) en todos los casos.
+
+- **`menu_get_opciones`** → O(1)
+  La función solo verifica si el puntero es válido y luego retorna directamente el campo donde se guardan las opciones de la estructura. Ambas operaciones son de tiempo constante, sin recorridos ni cálculos adicionales. Por lo tanto, su complejidad es O(1) en todos los casos.
+
+- **`menu_con_cada_opcion`** → O(n)
+  La función recorre todas las opciones de la lista del menú y aplica la función pasada a cada una. Como se procesa cada opción una sola vez y la función aplicada se asume de tiempo constante, la complejidad es lineal respecto al número de opciones, es decir O(n).
+  Si la función aplicada sobre cada elemento tuviera una complejidad mayor que O(1), entonces la complejidad total sería O(n \* f), donde f es la complejidad de la función aplicada.
 
 - **`menu_ejecutar`** → O(1) promedio, O(n) peor caso
   La función realiza operaciones constantes: crear una clave temporal, buscar la opción asociada y ejecutar su acción. La búsqueda en el hash es O(1) en el caso promedio, ya que se accede directamente al bucket calculado a partir de la tecla. Sin embargo, en el peor caso, si todas las claves colisionan en un mismo bucket, hash_buscar podría recorrer hasta n elementos, resultando en O(n). La llamada a la acción también es constante porque solo se ejecuta una función ya referenciada. Por lo tanto, la complejidad es O(1) promedio y O(n) en el peor caso.

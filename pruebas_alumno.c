@@ -554,6 +554,34 @@ void test_menu_get_estilo_recién_creado()
 
 	menu_destruir(m);
 }
+void test_menu_get_estilo_con_opciones()
+{
+	menu_t *m = menu_crear("Menu");
+	menu_agregar_opcion(m, 'a', "Descripcion", accion_bool);
+
+	int estilo = menu_get_estilo(m);
+
+	pa2m_afirmar(
+		estilo == MENU_ESTILO_SIMPLE,
+		"Se obtiene el estilo correctamente en un menu con opciones");
+
+	menu_destruir(m);
+}
+void test_menu_get_estilo_con_submenu()
+{
+	menu_t *m = menu_crear("Menu");
+	menu_t *sub = menu_crear("Submenu");
+
+	menu_agregar_submenu(m, 's', "Submenu", sub);
+
+	int estilo = menu_get_estilo(m);
+
+	pa2m_afirmar(
+		estilo == MENU_ESTILO_SIMPLE,
+		"Se obtiene el estilo correctamente en un menu con submenu");
+
+	menu_destruir(m);
+}
 void test_menu_get_estilo_prueba_estres()
 {
 	menu_t *m = menu_crear("Menu");
@@ -579,7 +607,162 @@ void tests_menu_get_estilo()
 {
 	test_menu_get_estilo_menu_null();
 	test_menu_get_estilo_recién_creado();
+	test_menu_get_estilo_con_opciones();
+	test_menu_get_estilo_con_submenu();
 	test_menu_get_estilo_prueba_estres();
+}
+//-------------------------------------------------
+void test_menu_get_titulo_menu_null()
+{
+	char *s = menu_get_titulo(NULL);
+	pa2m_afirmar(s == NULL,
+		     "Obtener el titulo de un menu NULL devuelve NULL ");
+}
+void test_menu_get_titulo_recién_creado()
+{
+	menu_t *m = menu_crear("Menu");
+
+	char *s = menu_get_titulo(m);
+
+	pa2m_afirmar(
+		strcmp(s, "Menu") == 0,
+		"Se obtiene el titulo correctamente en un menu recién creado");
+
+	menu_destruir(m);
+}
+void test_menu_get_titulo_con_opciones()
+{
+	menu_t *m = menu_crear("Menu");
+	menu_agregar_opcion(m, 'a', "Descripcion", accion_bool);
+
+	char *s = menu_get_titulo(m);
+
+	pa2m_afirmar(
+		strcmp(s, "Menu") == 0,
+		"Se obtiene el titulo correctamente en un menu con opciones");
+
+	menu_destruir(m);
+}
+void test_menu_get_titulo_con_submenu()
+{
+	menu_t *m = menu_crear("Menu");
+	menu_t *sub = menu_crear("Submenu");
+
+	menu_agregar_submenu(m, 's', "Submenu", sub);
+
+	char *s = menu_get_titulo(m);
+	char *s2 = menu_get_titulo(sub);
+
+	pa2m_afirmar(
+		strcmp(s, "Menu") == 0,
+		"Se obtiene el titulo correctamente en un menu con submenu");
+	pa2m_afirmar(strcmp(s2, "Submenu") == 0,
+		     "Se obtiene el titulo correctamente del submenu");
+
+	menu_destruir(m);
+}
+void test_menu_get_titulo_prueba_estres()
+{
+	menu_t *m = menu_crear("Menu");
+
+	bool ok = true;
+	for (int i = 0; i < 5000; i++) {
+		char *s = menu_get_titulo(m);
+		if (!strcmp(s, "Menu") == 0) {
+			ok = false;
+			break;
+		}
+	}
+
+	pa2m_afirmar(
+		ok,
+		"Prueba estres: Se puede obtener el titulo +5000 veces sin error");
+
+	menu_destruir(m);
+}
+
+void tests_menu_get_titulo()
+{
+	test_menu_get_titulo_menu_null();
+	test_menu_get_titulo_recién_creado();
+	test_menu_get_titulo_con_opciones();
+	test_menu_get_titulo_con_submenu();
+	test_menu_get_titulo_prueba_estres();
+}
+//-------------------------------------------------
+void test_menu_get_opciones_menu_null()
+{
+	lista_t *l = menu_get_opciones(NULL);
+	pa2m_afirmar(l == NULL,
+		     "Obtener las opciones de un menu NULL devuelve NULL ");
+}
+void test_menu_get_opciones_recién_creado()
+{
+	menu_t *m = menu_crear("Menu");
+
+	lista_t *l = menu_get_opciones(m);
+
+	pa2m_afirmar(
+		l != NULL,
+		"Se obtienen las opciones correctamente en un menu recién creado");
+
+	menu_destruir(m);
+}
+void test_menu_get_opciones_con_opciones()
+{
+	menu_t *m = menu_crear("Menu");
+	menu_agregar_opcion(m, 'a', "Descripcion", accion_bool);
+
+	lista_t *l = menu_get_opciones(m);
+
+	pa2m_afirmar(
+		l != NULL,
+		"Se obtiene las opciones correctamente en un menu con opciones");
+
+	menu_destruir(m);
+}
+void test_menu_get_opciones_con_submenu()
+{
+	menu_t *m = menu_crear("Menu");
+	menu_t *sub = menu_crear("Submenu");
+
+	menu_agregar_submenu(m, 's', "Submenu", sub);
+
+	lista_t *l = menu_get_opciones(m);
+
+	pa2m_afirmar(
+		l != NULL,
+		"Se obtiene las opciones correctamente en un menu con submenu");
+
+	menu_destruir(m);
+}
+void test_menu_get_opciones_prueba_estres()
+{
+	menu_t *m = menu_crear("Menu");
+
+	bool ok = true;
+	for (int i = 0; i < 5000; i++) {
+		lista_t *l = menu_get_opciones(m);
+		if (l == NULL) {
+			ok = false;
+			break;
+		}
+	}
+
+	pa2m_afirmar(
+		ok,
+		"Prueba estres: Se puede llamar a las opciones del menu +5000 veces sin error");
+
+	menu_destruir(m);
+}
+
+void tests_menu_get_opciones()
+{
+	test_menu_get_opciones_menu_null();
+	test_menu_get_opciones_recién_creado();
+	test_menu_get_opciones_con_opciones();
+	test_menu_get_opciones_con_submenu();
+	test_menu_get_opciones_prueba_estres();
 }
 //-------------------------------------------------
 void test_menu_set_estilo_menu_null()
@@ -648,6 +831,89 @@ void tests_menu_set_estilo()
 	test_menu_set_estilo_correctamante();
 	test_menu_set_estilo_invalido();
 	test_menu_set_estilo_prueba_estres();
+}
+//-------------------------------------------------
+bool contar_opciones(void *elemento, void *contexto)
+{
+	return true;
+}
+bool siempre_false(void *elemento, void *contexto)
+{
+	(void)elemento;
+	(void)contexto;
+	return false;
+}
+
+void test_menu_con_cada_opcion_menu_null()
+{
+	size_t n = menu_con_cada_opcion(NULL, contar_opciones, NULL);
+	pa2m_afirmar(n == 0, "Menu NULL devuelve 0 al iterar con cada opcion");
+}
+void test_menu_con_cada_opcion_funcion_null()
+{
+	menu_t *m = menu_crear("Menu");
+	size_t n = menu_con_cada_opcion(m, NULL, NULL);
+	pa2m_afirmar(n == 0,
+		     "Funcion NULL devuelve 0 al iterar con cada opcion");
+	menu_destruir(m);
+}
+void test_menu_con_cada_opcion_lista_vacia()
+{
+	menu_t *m = menu_crear("Menu");
+	size_t n = menu_con_cada_opcion(m, contar_opciones, NULL);
+	pa2m_afirmar(n == 0, "Lista de opciones vacia devuelve 0 al iterar");
+	menu_destruir(m);
+}
+void test_menu_con_cada_opcion_lista_con_opciones()
+{
+	menu_t *m = menu_crear("Menu");
+	menu_agregar_opcion(m, 'a', "Opcion 1", accion_bool);
+	menu_agregar_opcion(m, 'b', "Opcion 2", accion_bool);
+
+	size_t n = menu_con_cada_opcion(m, contar_opciones, NULL);
+
+	pa2m_afirmar(n == 2,
+		     "Iterar lista con 2 opciones recorre correctamente todas");
+
+	menu_destruir(m);
+}
+void test_menu_con_cada_opcion_funcion_devuelve_false()
+{
+	menu_t *m = menu_crear("Menu");
+	menu_agregar_opcion(m, 'a', "Opcion 1", NULL);
+	menu_agregar_opcion(m, 'b', "Opcion 2", NULL);
+
+	size_t n = menu_con_cada_opcion(m, siempre_false, NULL);
+	pa2m_afirmar(n == 0,
+		     "Si la funcion devuelve false, iteracion se detiene");
+
+	menu_destruir(m);
+}
+void test_menu_con_cada_opcion_prueba_estres()
+{
+	menu_t *m = menu_crear("Menu");
+
+	for (int i = 0; i < 5000; i++) {
+		char tecla = 'a' + ((char)i % 26);
+		menu_agregar_opcion(m, tecla, "s", accion_char);
+	}
+
+	size_t n = menu_con_cada_opcion(m, contar_opciones, NULL);
+
+	pa2m_afirmar(n == 5000,
+		     "Prueba estres: Itera correctamente sobre 5000 opciones");
+
+	menu_destruir(m);
+}
+
+void tests_menu_con_cada_opcion()
+{
+	test_menu_con_cada_opcion_menu_null();
+	test_menu_con_cada_opcion_funcion_null();
+	test_menu_con_cada_opcion_lista_vacia();
+	test_menu_con_cada_opcion_lista_con_opciones();
+	test_menu_con_cada_opcion_funcion_devuelve_false();
+	test_menu_con_cada_opcion_prueba_estres();
 }
 //-------------------------------------------------
 void test_menu_ejecutar_menu_null()
@@ -2480,7 +2746,15 @@ int main()
 	pa2m_nuevo_grupo("----- menu_get_estilo -----");
 	tests_menu_get_estilo();
 
-	//Iterador interno para el menu mostrar
+	pa2m_nuevo_grupo("----- menu_get_titulo -----");
+	tests_menu_get_titulo();
+
+	pa2m_nuevo_grupo("----- menu_get_opciones -----");
+	tests_menu_get_opciones();
+
+	pa2m_nuevo_grupo("----- menu_con_cada_opcion -----");
+	tests_menu_con_cada_opcion();
+
 	pa2m_nuevo_grupo("----- menu_ejecutar -----");
 	tests_menu_ejecutar();
 

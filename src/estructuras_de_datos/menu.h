@@ -37,12 +37,19 @@ int menu_set_estilo(menu_t *menu, menu_estilo_t estilo);
 //Devuelve el estilo actual del menu
 int menu_get_estilo(menu_t *menu);
 
-//Muestra el menu por pantalla y devuelve el valor booleano dependiendo si fueron mostradas todas las opciones del menu o no
-//Debe de devolver 0 en caso de exito, un numero negativo en caso de error
-int menu_mostrar(menu_t *menu);
+//Devuelve la estructura donde se guardan todas las opciones
+void *menu_get_opciones(menu_t *menu);
+
+//Devuelve el titulo del menu
+char *menu_get_titulo(menu_t *menu);
 
 //Muestra el menú, espera la entrada del usuario y ejecuta la acción o submenu correspondiente.
 void *menu_ejecutar(menu_t *menu, char tecla, void *contexto);
+
+//Iterador interno de menu
+size_t menu_con_cada_opcion(menu_t *menu,
+			    bool (*funcion)(void *elemento, void *contexto),
+			    void *contexto);
 
 //Libera toda la memoria usada por el menú y sus submenus.
 void menu_destruir(menu_t *menu);

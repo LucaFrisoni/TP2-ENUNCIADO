@@ -11,10 +11,7 @@ typedef enum {
 	TP2_ERROR_VALIDANDO_PARAMS = -2,
 	TP2_ERROR_CREANDO_MENU = -3,
 	TP2_ERROR_DINAMICO = -4,
-	// TP2_ERROR_SUBMENU_BUSCAR = -5,
-	// TP2_ERROR_SUBMENU_MOSTRAR = -6,
-	// TP2_ERROR_MOSTRANDO_MENU = -7,
-	// TP2_ERROR_CASE_SALIR = -8,
+	TP2_ERROR_MOSTRANDO_MENU = -5
 } tp2_codigos_t;
 
 /* =======================================================
@@ -30,10 +27,6 @@ typedef enum {
 	MENU_ERROR_DINAMICO = -5,
 	MENU_ERROR_ESTILO_INVALIDO = -6
 } menu_codigos_t;
-
-/* =======================================================
- *  Códigos de error del actions
- * ======================================================= */
 
 /* =======================================================
  *  Constantes varias del sistema

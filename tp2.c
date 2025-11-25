@@ -5,7 +5,9 @@
 #include <time.h>
 #include "src/ansi.h"
 #include "src/estructuras_de_datos/menu.h"
+#include "src/estructuras_de_datos/opcion.h"
 #include "src/estructuras_de_datos/tp1.h"
+#include "src/estructuras_de_datos/lista.h"
 #include "src/constantes.h"
 #include "src/actions.h"
 
@@ -47,6 +49,81 @@ tp1_t *cargar_archivo_inicial(char *ruta_archivo)
 		       ANSI_COLOR_RED, ANSI_COLOR_RESET);
 
 	return tp1;
+}
+
+void mostrar_opcion_con_estilo(menu_t *menu, opcion_t *op)
+{
+	switch (menu_get_estilo(menu)) {
+	case MENU_ESTILO_SIMPLE:
+		printf("- (%c) %s\n", opcion_tecla(op), opcion_descripcion(op));
+		break;
+	case MENU_ESTILO_COLORES:
+		printf(ANSI_COLOR_YELLOW ANSI_COLOR_BOLD
+		       "- (%c)" ANSI_COLOR_RESET "  " ANSI_COLOR_CYAN
+		       "%s" ANSI_COLOR_RESET "\n",
+		       opcion_tecla(op), opcion_descripcion(op));
+		break;
+	case MENU_ESTILO_COLORES2:
+		printf(ANSI_COLOR_RED "- (%c)" ANSI_COLOR_RESET
+				      "  " ANSI_COLOR_WHITE ANSI_COLOR_BOLD
+				      "%s" ANSI_COLOR_RESET "\n",
+		       opcion_tecla(op), opcion_descripcion(op));
+		break;
+	case MENU_ESTILO_MAX:
+	default:
+		break;
+	}
+}
+void mostrar_titulo_con_estilo(menu_t *menu)
+{
+	switch (menu_get_estilo(menu)) {
+	case MENU_ESTILO_SIMPLE:
+		printf("%s\n", menu_get_titulo(menu));
+		break;
+	case MENU_ESTILO_COLORES:
+		printf(ANSI_COLOR_WHITE ANSI_COLOR_BOLD "%s" ANSI_COLOR_RESET
+							"\n",
+		       menu_get_titulo(menu));
+		break;
+	case MENU_ESTILO_COLORES2:
+		printf(ANSI_COLOR_MAGENTA ANSI_COLOR_BOLD "%s" ANSI_COLOR_RESET
+							  "\n",
+		       menu_get_titulo(menu));
+		break;
+	case MENU_ESTILO_MAX:
+	default:
+		break;
+	}
+}
+bool mostrar_opcion(void *elemento, void *contexto)
+{
+	opcion_t *op = elemento;
+	menu_t *menu = contexto;
+
+	if (!op || !menu)
+		return false;
+
+	mostrar_opcion_con_estilo(menu, op);
+	return true;
+}
+
+int menu_mostrar(menu_t *menu)
+{
+	if (!menu)
+		return MENU_ERROR_NULL;
+
+	lista_t *l = menu_get_opciones(menu);
+	if (!l)
+		return TP2_ERROR_MOSTRANDO_MENU;
+
+	mostrar_titulo_con_estilo(menu);
+
+	size_t n = menu_con_cada_opcion(menu, mostrar_opcion, menu);
+
+	if (n != lista_cantidad(l))
+		return TP2_ERROR_MOSTRANDO_MENU;
+
+	return TP2_EXITO;
 }
 //-------------------------------------------Validaciones-------------------------------------------------------------
 bool validando_params(int argc, char *argv[])

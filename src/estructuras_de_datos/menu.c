@@ -128,7 +128,7 @@ int menu_set_estilo(menu_t *menu, menu_estilo_t estilo)
 	menu->estilo = estilo;
 	return MENU_EXITO;
 }
-
+//--------------------------------------------------------------------------------------------
 int menu_get_estilo(menu_t *menu)
 {
 	if (!menu)
@@ -136,77 +136,28 @@ int menu_get_estilo(menu_t *menu)
 	return menu->estilo;
 }
 //--------------------------------------------------------------------------------------------
-void mostrar_opcion_con_estilo(menu_t *menu, opcion_t *op)
-{
-	switch (menu->estilo) {
-	case MENU_ESTILO_SIMPLE:
-		printf("- (%c) %s\n", opcion_tecla(op), opcion_descripcion(op));
-		break;
-	case MENU_ESTILO_COLORES:
-		printf(ANSI_COLOR_YELLOW ANSI_COLOR_BOLD
-		       "- (%c)" ANSI_COLOR_RESET "  " ANSI_COLOR_CYAN
-		       "%s" ANSI_COLOR_RESET "\n",
-		       opcion_tecla(op), opcion_descripcion(op));
-		break;
-	case MENU_ESTILO_COLORES2:
-		printf(ANSI_COLOR_RED "- (%c)" ANSI_COLOR_RESET
-				      "  " ANSI_COLOR_WHITE ANSI_COLOR_BOLD
-				      "%s" ANSI_COLOR_RESET "\n",
-		       opcion_tecla(op), opcion_descripcion(op));
-		break;
-	case MENU_ESTILO_MAX:
-	default:
-		break;
-	}
-}
-void mostrar_titulo_con_estilo(menu_t *menu)
-{
-	switch (menu->estilo) {
-	case MENU_ESTILO_SIMPLE:
-		printf("%s\n", menu->titulo);
-		break;
-	case MENU_ESTILO_COLORES:
-		printf(ANSI_COLOR_WHITE ANSI_COLOR_BOLD "%s" ANSI_COLOR_RESET
-							"\n",
-		       menu->titulo);
-		break;
-	case MENU_ESTILO_COLORES2:
-		printf(ANSI_COLOR_MAGENTA ANSI_COLOR_BOLD "%s" ANSI_COLOR_RESET
-							  "\n",
-		       menu->titulo);
-		break;
-	case MENU_ESTILO_MAX:
-	default:
-		break;
-	}
-}
-
-bool mostrando_menu(void *elemento, void *contexto)
-{
-	opcion_t *op = elemento;
-	menu_t *menu = contexto;
-
-	if (!op || !menu)
-		return false;
-
-	mostrar_opcion_con_estilo(menu, op);
-	return true;
-}
-
-int menu_mostrar(menu_t *menu)
+void *menu_get_opciones(menu_t *menu)
 {
 	if (!menu)
-		return MENU_ERROR_NULL;
+		return NULL;
+	return menu->lista_opciones;
+}
+//--------------------------------------------------------------------------------------------
+char *menu_get_titulo(menu_t *menu)
+{
+	if (!menu)
+		return NULL;
+	return menu->titulo;
+}
+//--------------------------------------------------------------------------------------------
+size_t menu_con_cada_opcion(menu_t *menu,
+			    bool (*funcion)(void *elemento, void *contexto),
+			    void *contexto)
+{
+	if (!menu || !funcion)
+		return 0;
 
-	mostrar_titulo_con_estilo(menu);
-
-	size_t n = lista_con_cada_elemento(menu->lista_opciones, mostrando_menu,
-					   menu);
-
-	if (n != lista_cantidad(menu->lista_opciones))
-		return MENU_ERROR_LISTA;
-
-	return MENU_EXITO;
+	return lista_con_cada_elemento(menu->lista_opciones, funcion, contexto);
 }
 //--------------------------------------------------------------------------------------------
 void *menu_ejecutar(menu_t *menu, char tecla, void *contexto)
