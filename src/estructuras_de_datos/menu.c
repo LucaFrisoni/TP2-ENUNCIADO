@@ -40,21 +40,19 @@ menu_t *menu_crear(char *titulo)
 
 	menu->titulo = copiar_string(titulo);
 	if (!menu->titulo) {
-		free(menu);
+		menu_destruir(menu);
 		return NULL;
 	}
 
 	menu->lista_opciones = lista_crear();
 	if (!menu->lista_opciones) {
-		free(menu->titulo);
-		free(menu);
+		menu_destruir(menu);
 		return NULL;
 	}
 
 	menu->hash_opciones = hash_crear(DEFAULT_CAPACIDAD);
 	if (!menu->hash_opciones) {
-		free(menu->titulo);
-		free(menu);
+		menu_destruir(menu);
 		return NULL;
 	}
 
@@ -95,9 +93,11 @@ int menu_agregar(menu_t *menu, char tecla, char *descripcion,
 					lista_cantidad(menu->lista_opciones) -
 						1);
 		opcion_destruir(opcion);
+		free(tecla_dinamica);
 		return MENU_ERROR_HASH;
 	}
 
+	free(tecla_dinamica);
 	return MENU_EXITO;
 }
 
@@ -239,12 +239,12 @@ void menu_destruir(menu_t *menu)
 	if (!menu)
 		return;
 
-	if (!menu_cantidad(menu))
+	if (menu->titulo)
+		free(menu->titulo);
+	if (menu->hash_opciones)
+		hash_destruir(menu->hash_opciones);
+	if (menu->lista_opciones)
 		lista_destruir_todo(menu->lista_opciones, opcion_destruir);
-	else
-		lista_destruir(menu->lista_opciones);
 
-	hash_destruir(menu->hash_opciones);
-	free(menu->titulo);
 	free(menu);
 }

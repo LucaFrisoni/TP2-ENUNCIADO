@@ -369,7 +369,6 @@ void test_menu_agregar_submenu_correctamente()
 	int r = menu_agregar_submenu(menu, 'a', "Ir al submenu", sub);
 	pa2m_afirmar(r == 0, "Agregar un submenu correctamente devuelve exito");
 
-	menu_destruir(sub);
 	menu_destruir(menu);
 }
 void test_menu_agregar_submenu_correctamente_varios_submenus()
@@ -386,9 +385,6 @@ void test_menu_agregar_submenu_correctamente_varios_submenus()
 	pa2m_afirmar(r1 == 0 && r2 == 0 && r3 == 0,
 		     "Agregar varios submenus funciona correctamente");
 
-	menu_destruir(s3);
-	menu_destruir(s2);
-	menu_destruir(s1);
 	menu_destruir(menu);
 }
 void test_menu_agregar_submenu_aumenta_cantidad()
@@ -403,7 +399,6 @@ void test_menu_agregar_submenu_aumenta_cantidad()
 	pa2m_afirmar(despues == antes + 1,
 		     "Agregar un submenu incrementa la cantidad");
 
-	menu_destruir(sub);
 	menu_destruir(menu);
 }
 void test_menu_agregar_submenu_descripcion_larga()
@@ -420,7 +415,6 @@ void test_menu_agregar_submenu_descripcion_larga()
 		r == 0,
 		"Agregar submenu con descripción larga funciona correctamente");
 
-	menu_destruir(sub);
 	menu_destruir(menu);
 }
 void test_menu_agregar_submenu_descripcion_corta()
@@ -432,7 +426,6 @@ void test_menu_agregar_submenu_descripcion_corta()
 	pa2m_afirmar(r == 0,
 		     "Agregar submenu con descripción de una letra funciona");
 
-	menu_destruir(sub);
 	menu_destruir(menu);
 }
 void test_menu_agregar_submenu_descripcion_emojis()
@@ -443,7 +436,6 @@ void test_menu_agregar_submenu_descripcion_emojis()
 	int r = menu_agregar_submenu(menu, 'a', "✨🔥🌙", sub);
 	pa2m_afirmar(r == 0, "Agregar submenu con descripción emoji funciona");
 
-	menu_destruir(sub);
 	menu_destruir(menu);
 }
 void test_menu_agregar_submenu_descripcion_simbolos()
@@ -454,7 +446,6 @@ void test_menu_agregar_submenu_descripcion_simbolos()
 	int r = menu_agregar_submenu(menu, 'a', "@@@###%%%!!!", sub);
 	pa2m_afirmar(r == 0, "Agregar submenu con símbolos funciona");
 
-	menu_destruir(sub);
 	menu_destruir(menu);
 }
 void test_menu_agregar_submenu_descripciones_iguales()
@@ -469,8 +460,6 @@ void test_menu_agregar_submenu_descripciones_iguales()
 	pa2m_afirmar(r1 == 0 && r2 == 0,
 		     "Se pueden agregar submenus con la misma descripción");
 
-	menu_destruir(s1);
-	menu_destruir(s2);
 	menu_destruir(m);
 }
 void test_menu_agregar_submenu_anidado()
@@ -487,9 +476,6 @@ void test_menu_agregar_submenu_anidado()
 	pa2m_afirmar(r1 == 0 && r2 == 0 && r3 == 0,
 		     "Se pueden agregar submenus anidados correctamente ");
 
-	menu_destruir(a);
-	menu_destruir(b);
-	menu_destruir(c);
 	menu_destruir(m);
 }
 void test_menu_agregar_submenu_en_menu_vacio()
@@ -503,7 +489,6 @@ void test_menu_agregar_submenu_en_menu_vacio()
 		r == 0,
 		"Se puede agregar un submenu correctamente en un menu vacío");
 
-	menu_destruir(sub);
 	menu_destruir(menu);
 }
 void test_menu_agregar_submenu_prueba_estress()
@@ -530,13 +515,6 @@ void test_menu_agregar_submenu_prueba_estress()
 		todo_ok,
 		"Prueba de estrés: Agregar 5000 submenús no produce errores");
 
-	// Liberar todos los submenus creados
-	for (int i = 0; i < 5000; i++) {
-		if (subs[i])
-			menu_destruir(subs[i]);
-	}
-
-	// Finalmente destruir el menú
 	menu_destruir(menu);
 }
 
@@ -916,6 +894,7 @@ void test_opcion_crear_con_submenu()
 
 	pa2m_afirmar(op != NULL, "Crear opción con submenu funciona");
 
+	opcion_destruir(op);
 	menu_destruir(sub_menu);
 }
 void test_opcion_crear_descripcion_repetida()
@@ -958,6 +937,9 @@ void test_opcion_crear_con_submenu_varias_veces()
 		op && op2 && op3,
 		"Crear opción con submenu varias veces consecutivas funciona");
 
+	opcion_destruir(op);
+	opcion_destruir(op2);
+	opcion_destruir(op3);
 	menu_destruir(sub_menu);
 }
 
@@ -2260,6 +2242,7 @@ void test_jugada_crear_misma_jugada()
 		"Crear varias jugada con cartas iguales funciona correctamente");
 
 	free(j);
+	free(j2);
 }
 void test_jugada_crear_test_estres()
 {

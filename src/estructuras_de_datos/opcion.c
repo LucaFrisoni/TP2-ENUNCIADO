@@ -75,6 +75,11 @@ void opcion_destruir(void *opcion)
 	if (!opcion)
 		return;
 	opcion_t *op = opcion;
-	free(op->descripcion);
+
+	if (op->descripcion)
+		free(op->descripcion);
+
+	if (op->submenu)
+		menu_destruir(op->submenu);
 	free(op);
 }

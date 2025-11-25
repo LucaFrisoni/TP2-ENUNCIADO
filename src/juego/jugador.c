@@ -97,14 +97,8 @@ void jugador_destruir(jugador_t *jugador)
 
 	if (jugador->nombre)
 		free(jugador->nombre);
-	if (jugador->registro_jugadas) {
-		if (lista_cantidad(jugador->registro_jugadas)) {
-			lista_destruir_todo(jugador->registro_jugadas,
-					    jugada_destruir);
-		} else {
-			lista_destruir(jugador->registro_jugadas);
-		}
-	}
+	if (jugador->registro_jugadas)
+		lista_destruir_todo(jugador->registro_jugadas, jugada_destruir);
 
 	free(jugador);
 }

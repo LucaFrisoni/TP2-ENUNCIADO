@@ -92,7 +92,7 @@ Representa la estructura del **juego de la memoria pokemon**.
 - Posee una ultima _lista enlazada_ con el historial de las ultimas 5 jugadas
 
 📊 **Diagrama de memoria:**  
-![Imagen hash_t](assets/img/image-juego_t.png)
+![Imagen juego_t](assets/img/image-juego_t.png)
 
 ---
 
@@ -107,7 +107,7 @@ Representa un **jugador**.
 - Contiene una _lista enlazada_ que guarda los registros de sus jugadas
 
 📊 **Diagrama de memoria:**  
-![Imagen hash_t](assets/img/image-jugador_t.png)
+![Imagen jugador_t](assets/img/image-jugador_t.png)
 
 ---
 
@@ -122,7 +122,7 @@ Representa la **jugada** que realiza un jugador.
 - Contiene un booleano indicando si encontro el par o no.
 
 📊 **Diagrama de memoria:**  
-![Imagen hash_t](assets/img/image-jugada_t.png)
+![Imagen jugada_t](assets/img/image-jugada_t.png)
 
 ---
 

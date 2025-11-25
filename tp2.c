@@ -235,11 +235,8 @@ void ejecutar_menu(menu_t *menu, menu_t *sub_menu_buscar,
 	}
 }
 //--------------------------------------------Destruccion-----------------------------------------------------------
-void liberar_memoria(menu_t *menu_principal, menu_t *sub_menu_buscar,
-		     menu_t *sub_menu_mostrar, tp1_t *tp1)
+void liberar_memoria(menu_t *menu_principal, tp1_t *tp1)
 {
-	menu_destruir(sub_menu_buscar);
-	menu_destruir(sub_menu_mostrar);
 	menu_destruir(menu_principal);
 	tp1_destruir(tp1);
 }
@@ -263,7 +260,7 @@ int main(int argc, char *argv[])
 		tp1 = cargar_archivo_inicial(argv[PARAMETRO_ARCHIVO_POKEDEX]);
 
 	ejecutar_menu(menu, sub_menu_buscar, sub_menu_mostrar, tp1);
-	liberar_memoria(menu, sub_menu_buscar, sub_menu_mostrar, tp1);
+	liberar_memoria(menu, tp1);
 
 	return TP2_EXITO;
 }
